@@ -52,6 +52,10 @@ class CarApp extends StatelessWidget {
                   'assets/lock-fill.svg',
                   color: Color(0xFF8A8C8B),
                 ),
+                SvgPicture.asset(
+                  'assets/map-pin-line.svg',
+                  color: Color(0xFF8A8C8B),
+                ),
               ],
             ),
           ),
