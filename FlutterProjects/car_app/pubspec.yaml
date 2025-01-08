@@ -15,7 +15,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_svg: ^2.0.16
   permission_handler: ^11.0.1
+  http: ^1.1.0
 
+  geocoding: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

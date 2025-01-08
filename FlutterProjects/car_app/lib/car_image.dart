@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class CarImage extends StatelessWidget {
+  const CarImage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Stack(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:car_app/map_screen.dart';
 import 'package:car_app/car_image.dart';
 import 'package:car_app/fuel_display.dart';
 import 'package:car_app/lock.dart';

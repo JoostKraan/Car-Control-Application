@@ -3,6 +3,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:car_app/map_screen.dart';
 
 class MapButton extends StatelessWidget {
+  const MapButton({super.key});
+
   @override
   Widget build(BuildContext context) {
     return IconButton(
