@@ -61,13 +61,6 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  // void _openNewScreen() {
-  //   Navigator.push(
-  //     context,
-  //     MaterialPageRoute(builder: (context) => const Navigation()),
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,8 +68,22 @@ class _MapScreenState extends State<MapScreen> {
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: Colors.grey[900],
         title: const Text(
-            'Map', style: TextStyle(color: Colors.white,fontFamily: 'Poppins')),
+            'Map',
+            style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+        actions: [
+          IconButton(
+            icon: SvgPicture.asset(
+              'assets/settings-5-fill.svg',
+              color: Colors.white,
+              fit: BoxFit.contain,
+            ),
+            onPressed: () {
+              // Handle settings button press
+            },
+          ),
+        ],
       ),
+      backgroundColor: Colors.grey[900],
       body: Container(
         child: currentLocation == null
             ? const Center(child: CircularProgressIndicator())
@@ -136,61 +143,104 @@ class _MapScreenState extends State<MapScreen> {
               child: Column(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.grey[900],
+                      borderRadius: BorderRadius.circular(8),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: const Offset(0, 3),
+                          color: Colors.black.withOpacity(0.5),
+                          spreadRadius: 1,
+                          blurRadius: 3,
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
-                    child: const SizedBox(
-                      width: 150,
-                      height: 30,
-                      child: TextField(
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: 'Start Location',
-                        ),
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontFamily: 'Poppins',
-                        ),
+                    child: SizedBox(
+                      width: 160,
+                      height: 25,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                hintText: 'Start Location',
+                                hintStyle: TextStyle(color: Colors.grey),
+                              ),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: IconButton(
+                              padding: EdgeInsets.zero,
+                              icon: SvgPicture.asset(
+                                'assets/user-6-fill.svg',
+                                color: Colors.blueAccent,
+                                fit: BoxFit.contain,
+                              ),
+                              onPressed: () {
+                                // Handle the button press
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.grey[900],
+                      borderRadius: BorderRadius.circular(8),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: const Offset(0, 3),
+                          color: Colors.black.withOpacity(0.5),
+                          spreadRadius: 1,
+                          blurRadius: 3,
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
-                    child: const SizedBox(
-                      width: 150,
-                      height: 30,
-                      child: TextField(
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: 'Destination',
-                        ),
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontFamily: 'Poppins',
-                        ),
+                    child: SizedBox(
+                      width: 160,
+                      height: 25,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                hintText: 'Destination',
+                                hintStyle: TextStyle(color: Colors.grey),
+                              ),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 25,
+                            height: 25,
+                            child: IconButton(
+                              padding: EdgeInsets.zero,
+                              icon: SvgPicture.asset(
+                                'assets/home-4-fill.svg',
+                                color: Colors.blueAccent,
+                              ),
+                              onPressed: () {
+
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -201,32 +251,36 @@ class _MapScreenState extends State<MapScreen> {
               right: 25,
               bottom: 10,
               child: Column(
-                spacing: 20,
+                spacing: 15,
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   FloatingActionButton(
-                    backgroundColor: Colors.white,
+                    backgroundColor: Colors.grey[900]!,
+                    elevation: 3,
                     onPressed: () {
                       if (currentLocation != null) {
                         _mapController.move(currentLocation!, 15);
                       }
                     },
                     child: SvgPicture.asset(
-                        color: Colors.black,
-                        'assets/compass-discover-fill.svg'),
+                      color: Colors.white,
+                      'assets/compass-discover-fill.svg',
+                    ),
                   ),
                   FloatingActionButton(
-                    backgroundColor: Colors.white,
+                    backgroundColor: Colors.grey[900]!,
                     onPressed: null,
                     child: SvgPicture.asset(
-                        color: Colors.black, 'assets/roadster-fill.svg'),
+                        color: Colors.white,
+                        'assets/roadster-fill.svg'),
                   ),
                   FloatingActionButton(
-                    backgroundColor: Colors.white,
-                    onPressed: null, // Corrected line
+                    backgroundColor: Colors.grey[900]!,
+                    onPressed: null,
                     child: SvgPicture.asset(
-                        color: Colors.black, 'assets/navigation-fill.svg'),
+                        color: Colors.white,
+                        'assets/navigation-fill.svg'),
                   ),
                 ],
               ),
