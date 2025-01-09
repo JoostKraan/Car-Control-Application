@@ -29,7 +29,7 @@ class FuelDisplay extends StatelessWidget {
             style: const TextStyle(
               fontFamily: 'Poppins',
               color: Colors.white,
-              fontSize: 16,
+              fontSize: 18,
             ),
           ),
         ],
