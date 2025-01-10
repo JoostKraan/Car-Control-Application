@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
 
 class CarImage extends StatelessWidget {
   const CarImage({super.key});

@@ -30,14 +30,6 @@ flutter:
 
   assets:
     - assets/
-    - assets/lock-fill.svg
-    - assets/lock-unlock-fill.svg
-    - assets/gas-station-fill.svg
-    - assets/edit-line.svg
-    - assets/roadster-fill.svg
-    - assets/map-pin-line.svg
-    - assets/FordEscort.png
-
   fonts:
     - family: Poppins
       fonts:
