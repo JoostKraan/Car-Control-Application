@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:car_app/location_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';  // Fixed import
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -18,11 +19,13 @@ class _MapScreenState extends State<MapScreen> {
   bool _mapInitialized = false;
   final LocationService _locationService = LocationService();
   LatLng? _destination;
+  LatLng? _homeLocation;
 
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
+    _loadHomeLocation();
   }
 
   Future<void> _getCurrentLocation() async {
@@ -55,6 +58,103 @@ class _MapScreenState extends State<MapScreen> {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _loadHomeLocation() async {
+    final preferences = await SharedPreferences.getInstance();
+    final homeLat = preferences.getDouble('home_lat');
+    final homeLng = preferences.getDouble('home_lng');
+    if (homeLat != null && homeLng != null) {
+      setState(() {
+        _homeLocation = LatLng(homeLat, homeLng);
+      });
+    }
+  }
+
+  Future<void> _saveHomeLocation(LatLng location) async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setDouble('home_lat', location.latitude);
+    await preferences.setDouble('home_lng', location.longitude);
+    setState(() {
+      _homeLocation = location;
+    });
+  }
+
+  Future<void> _showSetHomeDialog() async {
+    final TextEditingController addressController = TextEditingController();
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        title: const Text(
+          'Set Home Location',
+          style: TextStyle(color: Colors.white, fontFamily: 'Poppins'),
+        ),
+        content: TextField(
+          controller: addressController,
+          style: const TextStyle(color: Colors.white),
+          decoration: const InputDecoration(
+            hintText: 'Enter your home address',
+            hintStyle: TextStyle(color: Colors.grey),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.white),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white)),
+          ),
+          TextButton(
+            onPressed: () async {
+              if (currentLocation != null) {
+                await _saveHomeLocation(currentLocation!);
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Home location set!')),
+                );
+              }
+            },
+            child: const Text('Save', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showEditHomeDialog() async {
+    if (_homeLocation == null) {
+      return _showSetHomeDialog();
+    }
+
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        title: const Text(
+          'Edit Home Location',
+          style: TextStyle(color: Colors.white, fontFamily: 'Poppins'),
+        ),
+        content: const Text(
+          'Would you like to change your home location?',
+          style: TextStyle(color: Colors.white),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _showSetHomeDialog();
+            },
+            child: const Text('Change', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -229,15 +329,25 @@ class _MapScreenState extends State<MapScreen> {
                           SizedBox(
                             width: 25,
                             height: 25,
-                            child: IconButton(
-                              padding: EdgeInsets.zero,
-                              icon: SvgPicture.asset(
-                                'assets/home-4-fill.svg',
-                                color: Colors.blueAccent,
+                            child: GestureDetector(
+                              onLongPress: _showEditHomeDialog,
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                icon: SvgPicture.asset(
+                                  'assets/home-4-fill.svg',
+                                  color: Colors.blueAccent,
+                                ),
+                                onPressed: () {
+                                  if (_homeLocation != null) {
+                                    setState(() {
+                                      _destination = _homeLocation;
+                                    });
+                                    _mapController.move(_homeLocation!, 15);
+                                  } else {
+                                    _showSetHomeDialog();
+                                  }
+                                },
                               ),
-                              onPressed: () {
-
-                              },
                             ),
                           ),
                         ],
@@ -251,7 +361,6 @@ class _MapScreenState extends State<MapScreen> {
               right: 25,
               bottom: 10,
               child: Column(
-                spacing: 15,
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -268,19 +377,13 @@ class _MapScreenState extends State<MapScreen> {
                       'assets/compass-discover-fill.svg',
                     ),
                   ),
+                  const SizedBox(height: 15),
                   FloatingActionButton(
                     backgroundColor: Colors.grey[900]!,
                     onPressed: null,
                     child: SvgPicture.asset(
                         color: Colors.white,
                         'assets/roadster-fill.svg'),
-                  ),
-                  FloatingActionButton(
-                    backgroundColor: Colors.grey[900]!,
-                    onPressed: null,
-                    child: SvgPicture.asset(
-                        color: Colors.white,
-                        'assets/navigation-fill.svg'),
                   ),
                 ],
               ),
