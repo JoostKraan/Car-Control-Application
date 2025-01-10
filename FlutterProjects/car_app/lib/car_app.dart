@@ -4,6 +4,7 @@ import 'package:car_app/car_image.dart';
 import 'package:car_app/fuel_display.dart';
 import 'package:car_app/lock.dart';
 import 'package:car_app/map.dart';
+import 'package:http/http.dart' as http;
 
 class CarApp extends StatefulWidget {
   const CarApp({super.key});
@@ -104,7 +105,7 @@ class _CarAppState extends State<CarApp> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 IconButton(
-                  onPressed: () {},
+                onPressed: null,
                   icon: SvgPicture.asset(
                     color: const Color(0xFF8A8C8B),
                     'assets/roadster-fill.svg',
