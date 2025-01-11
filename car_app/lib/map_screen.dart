@@ -1,10 +1,10 @@
-import 'package:car_app/Services/car_navigation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:car_app/location_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';  // Fixed import
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:car_app/api/navigation.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -15,11 +15,17 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   final MapController _mapController = MapController();
+  final LocationService _locationService = LocationService();
+  final NavigationService _navigationService = NavigationService();
+
   LatLng? currentLocation;
   bool _mapInitialized = false;
-  final LocationService _locationService = LocationService();
   LatLng? _destination;
   LatLng? _homeLocation;
+  String? _startAddress;
+  String? _destinationAddress;
+  Map<String, dynamic>? _routeData;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -161,6 +167,85 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  Future<void> _fetchRoute() async {
+    if (currentLocation == null || _destination == null) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Fetch route data
+      final routeData = await _navigationService.getRoute(currentLocation!, _destination!);
+
+      // Fetch addresses
+      final startAddr = await _navigationService.getAddress(currentLocation!);
+      final endAddr = await _navigationService.getAddress(_destination!);
+
+      setState(() {
+        _routeData = routeData;
+        _startAddress = startAddr;
+        _destinationAddress = endAddr;
+        _isLoading = false;
+      });
+
+      // Show route summary
+      _showRouteSummary();
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      _showErrorDialog(e.toString());
+    }
+  }
+
+  void _showRouteSummary() {
+    if (_routeData == null) return;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.grey[900],
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Route Summary',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'From: ${_startAddress ?? "Unknown"}',
+              style: const TextStyle(color: Colors.white),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'To: ${_destinationAddress ?? "Unknown"}',
+              style: const TextStyle(color: Colors.white),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Distance: ${(_routeData!['routes'][0]['distance'] / 1000).toStringAsFixed(2)} km',
+              style: const TextStyle(color: Colors.white),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -168,8 +253,9 @@ class _MapScreenState extends State<MapScreen> {
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: Colors.grey[900],
         title: const Text(
-            'Map',
-            style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+          'Map',
+          style: TextStyle(color: Colors.white, fontFamily: 'Poppins'),
+        ),
         actions: [
           IconButton(
             icon: SvgPicture.asset(
@@ -208,8 +294,7 @@ class _MapScreenState extends State<MapScreen> {
               ),
               children: [
                 TileLayer(
-                  urlTemplate:
-                  'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                 ),
                 MarkerLayer(
@@ -380,8 +465,10 @@ class _MapScreenState extends State<MapScreen> {
                   const SizedBox(height: 15),
                   FloatingActionButton(
                     backgroundColor: Colors.grey[900]!,
-                    onPressed: null,
-                    child: SvgPicture.asset(
+                    onPressed: _isLoading ? null : _fetchRoute,
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : SvgPicture.asset(
                         color: Colors.white,
                         'assets/roadster-fill.svg'),
                   ),
