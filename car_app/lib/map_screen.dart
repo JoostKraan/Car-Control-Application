@@ -320,6 +320,15 @@ class _MapScreenState extends State<MapScreen> {
                       ),
                   ],
                 ),
+                PolylineLayer(
+                    polylines: [
+                      Polyline(
+                        color: Colors.blue,
+                          strokeWidth: 10,
+                          points: [ LatLng(52.686906, 6.603969), LatLng(52.686672, 6.610358)]
+
+                          )
+                    ])
               ],
             ),
             Positioned(
