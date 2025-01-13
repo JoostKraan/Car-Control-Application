@@ -17,7 +17,7 @@ class _MapScreenState extends State<MapScreen> {
   final MapController _mapController = MapController();
   final LocationService _locationService = LocationService();
   final NavigationService _navigationService = NavigationService();
-
+  List<LatLng> _routePolyline = [];
   LatLng? currentLocation;
   bool _mapInitialized = false;
   LatLng? _destination;
@@ -176,14 +176,15 @@ class _MapScreenState extends State<MapScreen> {
 
     try {
       // Fetch route data
-      final routeData = await _navigationService.getRoute(currentLocation!, _destination!);
+      _getCurrentLocation();
+      final routePolyline = await _navigationService.getRoute(currentLocation!, _destination!);
 
       // Fetch addresses
       final startAddr = await _navigationService.getAddress(currentLocation!);
       final endAddr = await _navigationService.getAddress(_destination!);
 
       setState(() {
-        _routeData = routeData;
+        _routePolyline = routePolyline;
         _startAddress = startAddr;
         _destinationAddress = endAddr;
         _isLoading = false;
@@ -275,62 +276,62 @@ class _MapScreenState extends State<MapScreen> {
             ? const Center(child: CircularProgressIndicator())
             : Stack(
           children: [
-            FlutterMap(
-              mapController: _mapController,
-              options: MapOptions(
-                initialCenter: currentLocation!,
-                initialZoom: 14,
-                onMapReady: () {
-                  setState(() {
-                    _mapInitialized = true;
-                  });
-                  _moveMapToCurrentLocation();
-                },
-                onTap: (tapPosition, point) {
-                  setState(() {
-                    _destination = point;
-                  });
-                },
-              ),
-              children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+          FlutterMap(
+          mapController: _mapController,
+          options: MapOptions(
+            initialCenter: currentLocation!,
+            initialZoom: 14,
+            onMapReady: () {
+              setState(() {
+                _mapInitialized = true;
+              });
+              _moveMapToCurrentLocation();
+            },
+            onTap: (tapPosition, point) {
+              setState(() {
+                _destination = point;
+              });
+            },
+          ),
+          children: [
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+            ),
+            MarkerLayer(
+              markers: [
+                Marker(
+                  point: currentLocation!,
+                  width: 40,
+                  height: 40,
+                  child: SvgPicture.asset(
+                    color: Colors.blueAccent,
+                    'assets/map-pin-user-fill.svg',
+                  ),
                 ),
-                MarkerLayer(
-                  markers: [
-                    Marker(
-                      point: currentLocation!,
-                      width: 40,
-                      height: 40,
-                      child: SvgPicture.asset(
-                        color: Colors.blueAccent,
-                        'assets/map-pin-user-fill.svg',
-                      ),
+                if (_destination != null)
+                  Marker(
+                    point: _destination!,
+                    width: 40,
+                    height: 40,
+                    child: SvgPicture.asset(
+                      color: Colors.redAccent,
+                      'assets/map-pin-line.svg',
                     ),
-                    if (_destination != null)
-                      Marker(
-                        point: _destination!,
-                        width: 40,
-                        height: 40,
-                        child: SvgPicture.asset(
-                          color: Colors.redAccent,
-                          'assets/map-pin-line.svg',
-                        ),
-                      ),
-                  ],
-                ),
-                PolylineLayer(
-                    polylines: [
-                      Polyline(
-                        color: Colors.blue,
-                          strokeWidth: 10,
-                          points: [ LatLng(52.686906, 6.603969), LatLng(52.686672, 6.610358)]
-
-                          )
-                    ])
+                  ),
               ],
             ),
+            PolylineLayer(
+              polylines: [
+                Polyline(
+                  points: _routePolyline,
+                  strokeWidth: 5.0,
+                  color: Colors.blue,
+                ),
+              ],
+            ),
+          ],
+        ),
             Positioned(
               top: 10,
               left: 10,
@@ -463,7 +464,7 @@ class _MapScreenState extends State<MapScreen> {
                     elevation: 3,
                     onPressed: () {
                       if (currentLocation != null) {
-                        _mapController.move(currentLocation!, 15);
+                        _mapController.move(currentLocation!, 18);
                       }
                     },
                     child: SvgPicture.asset(
