@@ -14,6 +14,8 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
+  double startLat = 52.5200;  // Start latitude (e.g., Berlin)
+  double startLon = 13.4050;  // Start longitude (e.g., Berlin)
   final MapController _mapController = MapController();
   final LocationService _locationService = LocationService();
   final NavigationService _navigationService = NavigationService();
@@ -47,7 +49,6 @@ class _MapScreenState extends State<MapScreen> {
       _showErrorDialog(e.toString());
     }
   }
-
   void _moveMapToCurrentLocation() {
     if (currentLocation != null) {
       _mapController.move(currentLocation!, 14);
@@ -166,7 +167,6 @@ class _MapScreenState extends State<MapScreen> {
       ),
     );
   }
-
   Future<void> _fetchRoute() async {
     if (currentLocation == null || _destination == null) return;
 
@@ -180,13 +180,9 @@ class _MapScreenState extends State<MapScreen> {
       final routePolyline = await _navigationService.getRoute(currentLocation!, _destination!);
 
       // Fetch addresses
-      final startAddr = await _navigationService.getAddress(currentLocation!);
-      final endAddr = await _navigationService.getAddress(_destination!);
 
       setState(() {
         _routePolyline = routePolyline;
-        _startAddress = startAddr;
-        _destinationAddress = endAddr;
         _isLoading = false;
       });
 
@@ -367,6 +363,17 @@ class _MapScreenState extends State<MapScreen> {
                                 color: Colors.white,
                                 fontFamily: 'Poppins',
                               ),
+                              onSubmitted: (input) async {
+                                try {
+                                  // Use the NavigationService to geocode the address
+                                  final LatLng startLocationCoordinates =
+                                  await NavigationService().geocodeAddress(input);
+                                  print('Resolved Start Location: ${startLocationCoordinates.latitude}, ${startLocationCoordinates.longitude}');
+                                  currentLocation = LatLng(startLocationCoordinates.latitude, startLocationCoordinates.longitude);
+                                } catch (e) {
+                                  print('Error resolving destination: $e');
+                                }
+                              },
                             ),
                           ),
                           SizedBox(
@@ -419,7 +426,19 @@ class _MapScreenState extends State<MapScreen> {
                                 color: Colors.white,
                                 fontFamily: 'Poppins',
                               ),
+                              onSubmitted: (input) async {
+                                try {
+                                  // Use the NavigationService to geocode the address
+                                  final LatLng destinationCoordinates =
+                                  await NavigationService().geocodeAddress(input);
+                                  print('Resolved Destination: ${destinationCoordinates.latitude}, ${destinationCoordinates.longitude}');
+                                  _destination = LatLng(destinationCoordinates.latitude, destinationCoordinates.longitude);
+                                } catch (e) {
+                                  print('Error resolving destination: $e');
+                                }
+                              },
                             ),
+
                           ),
                           SizedBox(
                             width: 25,
