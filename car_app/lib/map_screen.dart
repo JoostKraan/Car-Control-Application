@@ -1,54 +1,71 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:car_app/location_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:car_app/api/navigation.dart';
+import 'package:geolocator/geolocator.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
-
   @override
   _MapScreenState createState() => _MapScreenState();
 }
 
 class _MapScreenState extends State<MapScreen> {
-  double startLat = 52.5200;  // Start latitude (e.g., Berlin)
-  double startLon = 13.4050;  // Start longitude (e.g., Berlin)
+  final TextEditingController _textController = TextEditingController();
   final MapController _mapController = MapController();
-  final LocationService _locationService = LocationService();
   final NavigationService _navigationService = NavigationService();
   List<LatLng> _routePolyline = [];
   LatLng? currentLocation;
   bool _mapInitialized = false;
+  StreamSubscription<Position>? _positionStreamSubscription;
   LatLng? _destination;
   LatLng? _homeLocation;
   String? _startAddress;
   String? _destinationAddress;
   Map<String, dynamic>? _routeData;
   bool _isLoading = false;
+  bool _isFollowingUser = true;
 
   @override
   void initState() {
     super.initState();
-    _getCurrentLocation();
+    _initializeLocationUpdates();
     _loadHomeLocation();
   }
 
-  Future<void> _getCurrentLocation() async {
+  @override
+  void dispose() {
+    _positionStreamSubscription?.cancel();
+    _mapController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _initializeLocationUpdates() async {
     try {
-      final position = await _locationService.determinePosition();
+      // Get initial location
+      final position = await _navigationService.getCurrentLocation();
       setState(() {
         currentLocation = LatLng(position.latitude, position.longitude);
       });
-      if (_mapInitialized) {
-        _moveMapToCurrentLocation();
-      }
+      _positionStreamSubscription = _navigationService.getPositionStream().listen((Position position) {
+        setState(() {
+          currentLocation = LatLng(position.latitude, position.longitude);
+        });
+        if (_isFollowingUser && _mapInitialized) {
+          _mapController.move(currentLocation!, _mapController.camera.zoom);
+        }
+        if (_destination != null && _routePolyline.isNotEmpty) {
+          _fetchRoute();
+        }
+      });
     } catch (e) {
       _showErrorDialog(e.toString());
     }
   }
+
   void _moveMapToCurrentLocation() {
     if (currentLocation != null) {
       _mapController.move(currentLocation!, 14);
@@ -138,7 +155,6 @@ class _MapScreenState extends State<MapScreen> {
     if (_homeLocation == null) {
       return _showSetHomeDialog();
     }
-
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -167,26 +183,19 @@ class _MapScreenState extends State<MapScreen> {
       ),
     );
   }
+
   Future<void> _fetchRoute() async {
     if (currentLocation == null || _destination == null) return;
-
     setState(() {
       _isLoading = true;
     });
-
     try {
       // Fetch route data
-      _getCurrentLocation();
       final routePolyline = await _navigationService.getRoute(currentLocation!, _destination!);
-
-      // Fetch addresses
-
       setState(() {
         _routePolyline = routePolyline;
         _isLoading = false;
       });
-
-      // Show route summary
       _showRouteSummary();
     } catch (e) {
       setState(() {
@@ -198,7 +207,6 @@ class _MapScreenState extends State<MapScreen> {
 
   void _showRouteSummary() {
     if (_routeData == null) return;
-
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.grey[900],
@@ -246,161 +254,99 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Colors.grey[900],
-        title: const Text(
-          'Map',
-          style: TextStyle(color: Colors.white, fontFamily: 'Poppins'),
-        ),
-        actions: [
-          IconButton(
-            icon: SvgPicture.asset(
-              'assets/settings-5-fill.svg',
-              color: Colors.white,
-              fit: BoxFit.contain,
-            ),
-            onPressed: () {
-              // Handle settings button press
-            },
+        appBar: AppBar(
+          iconTheme: const IconThemeData(color: Colors.white),
+          backgroundColor: Colors.grey[900],
+          title: const Text(
+            'Map',
+            style: TextStyle(color: Colors.white, fontFamily: 'Poppins'),
           ),
-        ],
-      ),
+          actions: [
+            IconButton(
+              icon: SvgPicture.asset(
+                'assets/settings-5-fill.svg',
+                color: Colors.white,
+                fit: BoxFit.contain,
+              ),
+              onPressed: () {
+                // Handle settings button press
+              },
+            ),
+          ],
+        ),
       backgroundColor: Colors.grey[900],
       body: Container(
         child: currentLocation == null
             ? const Center(child: CircularProgressIndicator())
             : Stack(
           children: [
-          FlutterMap(
-          mapController: _mapController,
-          options: MapOptions(
-            initialCenter: currentLocation!,
-            initialZoom: 14,
-            onMapReady: () {
-              setState(() {
-                _mapInitialized = true;
-              });
-              _moveMapToCurrentLocation();
-            },
-            onTap: (tapPosition, point) {
-              setState(() {
-                _destination = point;
-              });
-            },
-          ),
-          children: [
-            TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-            ),
-            MarkerLayer(
-              markers: [
-                Marker(
-                  point: currentLocation!,
-                  width: 40,
-                  height: 40,
-                  child: SvgPicture.asset(
-                    color: Colors.blueAccent,
-                    'assets/map-pin-user-fill.svg',
-                  ),
+            FlutterMap(
+              mapController: _mapController,
+              options: MapOptions(
+                initialCenter: currentLocation!,
+                initialZoom: 14,
+                onMapReady: () {
+                  setState(() {
+                    _mapInitialized = true;
+                  });
+                  _moveMapToCurrentLocation();
+                },
+                onTap: (tapPosition, point) {
+                  setState(() {
+                    _destination = point;
+                  });
+                },
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                 ),
-                if (_destination != null)
-                  Marker(
-                    point: _destination!,
-                    width: 40,
-                    height: 40,
-                    child: SvgPicture.asset(
-                      color: Colors.redAccent,
-                      'assets/map-pin-line.svg',
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: currentLocation!,
+                      width: 40,
+                      height: 40,
+                      child: SvgPicture.asset(
+                        color: Colors.blueAccent,
+                        'assets/map-pin-user-fill.svg',
+                      ),
                     ),
-                  ),
-              ],
-            ),
-            PolylineLayer(
-              polylines: [
-                Polyline(
-                  points: _routePolyline,
-                  strokeWidth: 5.0,
-                  color: Colors.blue,
+                    if (_destination != null)
+                      Marker(
+                        point: _destination!,
+                        width: 40,
+                        height: 40,
+                        child: SvgPicture.asset(
+                          color: Colors.redAccent,
+                          'assets/map-pin-line.svg',
+                        ),
+                      ),
+                  ],
+                ),
+                PolylineLayer(
+                  polylines: [
+                    Polyline(
+                      points: _routePolyline,
+                      strokeWidth: 5.0,
+                      color: Colors.blue,
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
             Positioned(
               top: 10,
               left: 10,
               child: Column(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[900],
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.5),
-                          spreadRadius: 1,
-                          blurRadius: 3,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: SizedBox(
-                      width: 160,
-                      height: 25,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              decoration: const InputDecoration(
-                                border: InputBorder.none,
-                                hintText: 'Start Location',
-                                hintStyle: TextStyle(color: Colors.grey),
-                              ),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontFamily: 'Poppins',
-                              ),
-                              onSubmitted: (input) async {
-                                try {
-                                  // Use the NavigationService to geocode the address
-                                  final LatLng startLocationCoordinates =
-                                  await NavigationService().geocodeAddress(input);
-                                  print('Resolved Start Location: ${startLocationCoordinates.latitude}, ${startLocationCoordinates.longitude}');
-                                  currentLocation = LatLng(startLocationCoordinates.latitude, startLocationCoordinates.longitude);
-                                } catch (e) {
-                                  print('Error resolving destination: $e');
-                                }
-                              },
-                            ),
-                          ),
-                          SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: IconButton(
-                              padding: EdgeInsets.zero,
-                              icon: SvgPicture.asset(
-                                'assets/user-6-fill.svg',
-                                color: Colors.blueAccent,
-                                fit: BoxFit.contain,
-                              ),
-                              onPressed: () {
-                                // Handle the button press
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
                   const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.grey[900],
-                      borderRadius: BorderRadius.circular(8),
+                        color: Colors.grey[900]!.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(100),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.5),
@@ -411,13 +357,14 @@ class _MapScreenState extends State<MapScreen> {
                       ],
                     ),
                     child: SizedBox(
-                      width: 160,
-                      height: 25,
+                      width: 380,
+                      height: 35,
                       child: Row(
                         children: [
                           Expanded(
                             child: TextField(
                               decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.only(bottom: 10),
                                 border: InputBorder.none,
                                 hintText: 'Destination',
                                 hintStyle: TextStyle(color: Colors.grey),
@@ -426,19 +373,21 @@ class _MapScreenState extends State<MapScreen> {
                                 color: Colors.white,
                                 fontFamily: 'Poppins',
                               ),
+                              controller: _textController,
                               onSubmitted: (input) async {
                                 try {
-                                  // Use the NavigationService to geocode the address
                                   final LatLng destinationCoordinates =
-                                  await NavigationService().geocodeAddress(input);
+                                  await _navigationService.geocodeAddress(input);
                                   print('Resolved Destination: ${destinationCoordinates.latitude}, ${destinationCoordinates.longitude}');
                                   _destination = LatLng(destinationCoordinates.latitude, destinationCoordinates.longitude);
+                                  final address = await _navigationService.reverseGeocode(_destination!);
+                                  _textController.text = address; // Update the text field with the resolved address
+                                  print(address);
                                 } catch (e) {
                                   print('Error resolving destination: $e');
                                 }
                               },
                             ),
-
                           ),
                           SizedBox(
                             width: 25,
@@ -503,6 +452,70 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                 ],
               ),
+            ),
+            Positioned(
+              top: 80,
+              right: 100,
+              left: 100,
+              bottom: 500,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[900]!.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        offset: Offset(2, 2),
+                        blurRadius: 4, //
+                      ),
+                    ],
+                  ),
+                  padding: EdgeInsets.all(20), // Padding inside the box
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Column(
+                        children: [
+                          Image.asset(
+                            'assets/Roundabout1.png',
+                             //color: Colors.green,
+
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            'current turn',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Expanded(child: Container()),
+                      Column(
+                        children: [
+                          Icon(
+                            Icons.arrow_left,
+                            color: Colors.grey,
+                            size: 50,
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            'In (x) distance',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: Colors.grey,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                )
             ),
           ],
         ),
