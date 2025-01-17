@@ -27,7 +27,7 @@ class _MapScreenState extends State<MapScreen> {
   String? _destinationAddress;
   Map<String, dynamic>? _routeData;
   bool _isLoading = false;
-  bool _isFollowingUser = true;
+  final bool _isFollowingUser = true;
 
   @override
   void initState() {
@@ -294,6 +294,7 @@ class _MapScreenState extends State<MapScreen> {
                 children: [
                   const SizedBox(height: 8),
                   Container(
+                    width: MediaQuery.of(context).size.width * 0.8,
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                         color: Colors.grey[900]!.withOpacity(0.9),

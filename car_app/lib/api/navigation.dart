@@ -4,7 +4,6 @@ import 'package:latlong2/latlong.dart';
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 import 'package:car_app/trip_history.dart';
-import 'package:car_app/map_screen.dart';
 class NavigationService {
 
   static const String _baseUrl = 'http://81.172.187.98:5000';
@@ -15,6 +14,8 @@ class NavigationService {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
+      final double distance = data['routes'][0]['distance'];
+      final double timeTillArrival = data['routes'][0]['duration'];
       final List<dynamic> coordinates = data['routes'][0]['geometry']['coordinates'];
 
       final List<dynamic> legs = data['routes'][0]['legs'];
@@ -26,10 +27,17 @@ class NavigationService {
           final String streetName = step['name'] ?? 'unknown road';
           final int? roundaboutExit = step['maneuver']['exit'];
 
+
           final instruction = _generateInstruction(maneuverType, modifier, streetName, roundaboutExit?.toString() ?? '');
           print(instruction);
+          final distanceinKm = distance.round();
+          final int duration = ((timeTillArrival / 60).round() * 2).toDouble().toInt();
+          print('Total Distance : $distanceinKm km ');
+          print('$duration Minutes' );
         }
       }
+
+
       final String destination = await reverseGeocode(end);
       print(destination);
       return coordinates.map((coord) => LatLng(coord[1], coord[0])).toList();

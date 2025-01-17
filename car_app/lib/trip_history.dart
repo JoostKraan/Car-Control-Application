@@ -98,7 +98,6 @@ class _TripHistoryState extends State<TripHistory> {
       ),
     );
   }
-
   Widget _buildTripDetail(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),

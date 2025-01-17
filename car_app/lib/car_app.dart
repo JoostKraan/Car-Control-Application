@@ -89,7 +89,7 @@ class _CarAppState extends State<CarApp> {
                   onPressed: toggleEdit,
                 ),
                 SizedBox(
-                  width: 240,
+                  width: 225,
                 ),
                 IconButton(
                   onPressed: () {
