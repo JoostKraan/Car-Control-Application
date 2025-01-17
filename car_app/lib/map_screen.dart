@@ -196,7 +196,6 @@ class _MapScreenState extends State<MapScreen> {
         _routePolyline = routePolyline;
         _isLoading = false;
       });
-      _showRouteSummary();
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -204,53 +203,6 @@ class _MapScreenState extends State<MapScreen> {
       _showErrorDialog(e.toString());
     }
   }
-
-  void _showRouteSummary() {
-    if (_routeData == null) return;
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.grey[900],
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Route Summary',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'From: ${_startAddress ?? "Unknown"}',
-              style: const TextStyle(color: Colors.white),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'To: ${_destinationAddress ?? "Unknown"}',
-              style: const TextStyle(color: Colors.white),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Distance: ${(_routeData!['routes'][0]['distance'] / 1000).toStringAsFixed(2)} km',
-              style: const TextStyle(color: Colors.white),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Close'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -269,7 +221,6 @@ class _MapScreenState extends State<MapScreen> {
                 fit: BoxFit.contain,
               ),
               onPressed: () {
-                // Handle settings button press
               },
             ),
           ],
@@ -477,9 +428,9 @@ class _MapScreenState extends State<MapScreen> {
                       Column(
                         children: [
                           Image.asset(
+                            width: 100,
+                            height: 100,
                             'assets/Roundabout1.png',
-                             //color: Colors.green,
-
                           ),
                           SizedBox(height: 10),
                           Text(

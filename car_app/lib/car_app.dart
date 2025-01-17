@@ -1,3 +1,4 @@
+import 'package:car_app/trip_history.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:car_app/car_image.dart';
@@ -81,14 +82,32 @@ class _CarAppState extends State<CarApp> {
                 IconButton(
                   icon: SvgPicture.asset(
                     'assets/edit-line.svg',
-                    height: 15,
-                    width: 15,
+                    height: 25,
+                    width: 25,
                     color: Colors.white,
                   ),
                   onPressed: toggleEdit,
                 ),
+                SizedBox(
+                  width: 240,
+                ),
+                IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => TripHistory())
+                    );
+                  },
+                  icon: SvgPicture.asset(
+                      'assets/map-2-line.svg',
+                    color: Colors.white,
+                    width: 25,
+                    height: 25,
+                  ),
+                )
               ],
             ),
+
             FuelDisplay(fuelLevel: fuelLevel),
           ],
         ),

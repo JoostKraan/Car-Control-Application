@@ -22,8 +22,9 @@ class NavigationService {
           final String maneuverType = step['maneuver']['type'] ?? 'unknown maneuver';
           final String modifier = step['maneuver']['modifier'] ?? 'straight';
           final String streetName = step['name'] ?? 'unknown road';
+          final int? roundaboutExit = step['maneuver']['exit'];
 
-          final instruction = _generateInstruction(maneuverType, modifier, streetName);
+          final instruction = _generateInstruction(maneuverType, modifier, streetName, roundaboutExit?.toString() ?? '');
           print(instruction);
         }
       }
@@ -33,7 +34,7 @@ class NavigationService {
     }
   }
 
-  String _generateInstruction(String type, String modifier, String streetName) {
+  String _generateInstruction(String type, String modifier, String streetName, String roundaboutExit) {
     switch (type) {
       case 'turn':
         return 'Turn $modifier onto $streetName';
@@ -42,6 +43,13 @@ class NavigationService {
       case 'arrive':
         return 'You have arrived at $streetName';
       case 'roundabout':
+        if (roundaboutExit.isNotEmpty) {
+          final int? exitNumber = int.tryParse(roundaboutExit);
+          if (exitNumber != null) {
+            final String ordinalExit = _convertToOrdinal(exitNumber);
+            return 'Take the $ordinalExit exit towards $streetName';
+          }
+        }
         return 'Take the roundabout exit towards $streetName';
       case 'merge':
         return 'Merge $modifier onto $streetName';
@@ -51,7 +59,6 @@ class NavigationService {
         return 'Proceed $modifier on $streetName';
     }
   }
-
   Future<LatLng> geocodeAddress(String address) async {
     final url =
         'https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(address)}&format=json&addressdetails=1&limit=1';
@@ -112,6 +119,21 @@ class NavigationService {
       }
     } else {
       throw Exception('Failed to fetch address');
+    }
+  }
+  String _convertToOrdinal(int number) {
+    if (number >= 11 && number <= 13) {
+      return '${number}th';
+    }
+    switch (number % 10) {
+      case 1:
+        return '${number}st';
+      case 2:
+        return '${number}nd';
+      case 3:
+        return '${number}rd';
+      default:
+        return '${number}th';
     }
   }
 }
