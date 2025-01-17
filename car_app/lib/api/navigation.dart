@@ -3,10 +3,12 @@ import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
-
+import 'package:car_app/trip_history.dart';
+import 'package:car_app/map_screen.dart';
 class NavigationService {
-  static const String _baseUrl = 'http://81.172.187.98:5000';
 
+  static const String _baseUrl = 'http://81.172.187.98:5000';
+  TripHistory triphistory = TripHistory();
   Future<List<LatLng>> getRoute(LatLng start, LatLng end) async {
     final url = '$_baseUrl/route/v1/car/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?overview=full&steps=true&geometries=geojson';
     final response = await http.get(Uri.parse(url));
@@ -28,6 +30,8 @@ class NavigationService {
           print(instruction);
         }
       }
+      final String destination = await reverseGeocode(end);
+      print(destination);
       return coordinates.map((coord) => LatLng(coord[1], coord[0])).toList();
     } else {
       throw Exception('Failed to fetch route data: ${response.statusCode}');
