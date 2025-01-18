@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:car_app/api/navigation.dart';
 import 'package:geolocator/geolocator.dart';
 
+
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
   @override
@@ -23,9 +24,6 @@ class _MapScreenState extends State<MapScreen> {
   StreamSubscription<Position>? _positionStreamSubscription;
   LatLng? _destination;
   LatLng? _homeLocation;
-  String? _startAddress;
-  String? _destinationAddress;
-  Map<String, dynamic>? _routeData;
   bool _isLoading = false;
   final bool _isFollowingUser = true;
 
@@ -428,10 +426,11 @@ class _MapScreenState extends State<MapScreen> {
                     children: [
                       Column(
                         children: [
-                          SvgPicture.asset(
+                          Image.asset(
+                            'assets/navigationicons/Roundabout2nd.png',
                             height: 100,
                             width: 100,
-                            'assets/Roundabout1st.svg',
+                            //color: Colors.white,
                           ),
                           SizedBox(height: 10),
                           Text(
