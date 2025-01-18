@@ -428,10 +428,10 @@ class _MapScreenState extends State<MapScreen> {
                     children: [
                       Column(
                         children: [
-                          Image.asset(
-                            width: 100,
+                          SvgPicture.asset(
                             height: 100,
-                            'assets/Roundabout1.png',
+                            width: 100,
+                            'assets/Roundabout1st.svg',
                           ),
                           SizedBox(height: 10),
                           Text(
