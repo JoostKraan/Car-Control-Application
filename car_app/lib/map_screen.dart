@@ -427,7 +427,7 @@ class _MapScreenState extends State<MapScreen> {
                       Column(
                         children: [
                           Image.asset(
-                            'assets/navigationicons/Roundabout2nd.png',
+                            'assets/navigationicons/RightTurn.png',
                             height: 100,
                             width: 100,
                             //color: Colors.white,
