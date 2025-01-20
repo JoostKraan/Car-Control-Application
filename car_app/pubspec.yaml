@@ -21,6 +21,7 @@ dependencies:
 
 
   geocoding: any
+  time: ^2.1.5
 dev_dependencies:
   flutter_test:
     sdk: flutter

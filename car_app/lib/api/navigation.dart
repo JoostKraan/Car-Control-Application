@@ -9,7 +9,7 @@ class NavigationService {
   static const String _baseUrl = 'http://81.172.187.98:5000';
   TripHistory triphistory = TripHistory();
   Future<List<LatLng>> getRoute(LatLng start, LatLng end) async {
-    final url = '$_baseUrl/route/v1/car/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?overview=full&steps=true&geometries=geojson';
+    final url = '$_baseUrl/route/v1/car/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?overview=full&steps=true&geometries=geojson&annotations=true';
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
@@ -17,27 +17,41 @@ class NavigationService {
       final double distance = data['routes'][0]['distance'];
       final double timeTillArrival = data['routes'][0]['duration'];
       final List<dynamic> coordinates = data['routes'][0]['geometry']['coordinates'];
-
       final List<dynamic> legs = data['routes'][0]['legs'];
       for (var leg in legs) {
         final List<dynamic> steps = leg['steps'];
-        for (var step in steps) {
+        String previousRoad = '';
+
+        for (var i = 0; i < steps.length; i++) {
+          final step = steps[i];
           final String maneuverType = step['maneuver']['type'] ?? 'unknown maneuver';
           final String modifier = step['maneuver']['modifier'] ?? 'straight';
-          final String streetName = step['name'] ?? 'unknown road';
+          String streetName = step['name'] ?? '';
           final int? roundaboutExit = step['maneuver']['exit'];
-
-
-          final instruction = _generateInstruction(maneuverType, modifier, streetName, roundaboutExit?.toString() ?? '');
+          if (streetName.isEmpty && maneuverType != 'arrive' && maneuverType != 'depart') {
+            streetName = 'the road';
+          }
+          final instruction = _generateInstruction(maneuverType, modifier, streetName, roundaboutExit?.toString() ?? '', previousRoad);
           print(instruction);
-          final distanceinKm = distance.round();
-          final int duration = ((timeTillArrival / 60).round() * 2).toDouble().toInt();
-          print('Total Distance : $distanceinKm km ');
-          print('$duration Minutes' );
+
+          if (streetName.isNotEmpty && streetName != 'the road') {
+            previousRoad = streetName;
+          }
         }
       }
 
+      print('Total Distance : ${(distance / 1000).toDouble().toStringAsFixed(1)} km ');
+      distance.toDouble();
+      final Duration duration = Duration(seconds: timeTillArrival.toInt());
 
+      String formattedDuration;
+      if (duration.inHours > 0) {
+        formattedDuration = '${duration.inHours.toDouble()} hours ${(duration.inMinutes.remainder(60)).toDouble()} minutes';
+      } else {
+        formattedDuration = '${duration.inMinutes.toDouble()} minutes';
+      }
+
+      print('Duration: ${(formattedDuration)}');
       final String destination = await reverseGeocode(end);
       print(destination);
       return coordinates.map((coord) => LatLng(coord[1], coord[0])).toList();
@@ -46,29 +60,57 @@ class NavigationService {
     }
   }
 
-  String _generateInstruction(String type, String modifier, String streetName, String roundaboutExit) {
+  String _generateInstruction(String type, String modifier, String streetName, String roundaboutExit, String previousRoad) {
+    final String direction = _getDirectionPhrase(modifier);
+
     switch (type) {
       case 'turn':
-        return 'Turn $modifier onto $streetName';
+        return 'Turn $direction onto $streetName';
       case 'depart':
-        return 'Start on $streetName';
+        return 'Start your journey on ${streetName.isEmpty ? 'the current road' : streetName}';
       case 'arrive':
-        return 'You have arrived at $streetName';
+        return 'You have arrived at your destination on $streetName';
       case 'roundabout':
         if (roundaboutExit.isNotEmpty) {
           final int? exitNumber = int.tryParse(roundaboutExit);
           if (exitNumber != null) {
             final String ordinalExit = _convertToOrdinal(exitNumber);
-            return 'Take the $ordinalExit exit towards $streetName';
+            return 'At the roundabout, take the $ordinalExit exit onto $streetName';
           }
         }
-        return 'Take the roundabout exit towards $streetName';
+        return 'Exit the roundabout onto $streetName';
       case 'merge':
-        return 'Merge $modifier onto $streetName';
+        if (previousRoad.isNotEmpty) {
+          return 'Merge $direction from $previousRoad onto the highway';
+        }
+        return 'Merge $direction onto the highway';
       case 'continue':
-        return 'Continue $modifier onto $streetName';
+        if (streetName == 'the road') {
+          return 'Continue $direction';
+        }
+        return 'Continue $direction onto $streetName';
       default:
-        return 'Proceed $modifier on $streetName';
+        if (modifier == 'straight') {
+          return 'Continue straight ahead';
+        } else if (streetName == 'the road') {
+          return 'Keep $direction';
+        }
+        return 'Keep $direction onto $streetName';
+    }
+  }
+
+  String _getDirectionPhrase(String modifier) {
+    switch (modifier) {
+      case 'slight right':
+        return 'slightly right';
+      case 'slight left':
+        return 'slightly left';
+      case 'sharp right':
+        return 'sharply right';
+      case 'sharp left':
+        return 'sharply left';
+      default:
+        return modifier;
     }
   }
   Future<LatLng> geocodeAddress(String address) async {
@@ -92,7 +134,7 @@ class NavigationService {
     }
   }
 
-  // Added navigation-related functions from MapScreen
+
   Stream<Position> getPositionStream() {
     return Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
