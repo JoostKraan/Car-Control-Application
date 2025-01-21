@@ -3,11 +3,9 @@ import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
-import 'package:car_app/trip_history.dart';
 class NavigationService {
 
   static const String _baseUrl = 'http://81.172.187.98:5000';
-  TripHistory triphistory = TripHistory();
   Future<List<LatLng>> getRoute(LatLng start, LatLng end) async {
     final url = '$_baseUrl/route/v1/car/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?overview=full&steps=true&geometries=geojson&annotations=true';
     final response = await http.get(Uri.parse(url));
@@ -21,7 +19,6 @@ class NavigationService {
       for (var leg in legs) {
         final List<dynamic> steps = leg['steps'];
         String previousRoad = '';
-
         for (var i = 0; i < steps.length; i++) {
           final step = steps[i];
           final String maneuverType = step['maneuver']['type'] ?? 'unknown maneuver';
@@ -39,7 +36,6 @@ class NavigationService {
           }
         }
       }
-
       print('Total Distance : ${(distance / 1000).toDouble().toStringAsFixed(1)} km ');
       distance.toDouble();
       final Duration duration = Duration(seconds: timeTillArrival.toInt());
@@ -142,15 +138,6 @@ class NavigationService {
         distanceFilter: 10, // Update every 10 meters
       ),
     );
-  }
-  Future<Position> getCurrentLocation() async {
-    try {
-      return await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-    } catch (e) {
-      rethrow;
-    }
   }
   Future<String> reverseGeocode(LatLng location) async {
     final url =

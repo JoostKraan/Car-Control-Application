@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:car_app/location_service.dart';
+import 'package:car_app/turn-by-turn.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -6,6 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:car_app/api/navigation.dart';
 import 'package:geolocator/geolocator.dart';
+import 'destination_search_bar.dart';
 
 
 class MapScreen extends StatefulWidget {
@@ -15,24 +18,28 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  final TextEditingController _textController = TextEditingController();
+
+  bool _showTurnByTurn = false;
+  bool _showDestinationBar = true;
   final MapController _mapController = MapController();
+  final LocationService _locationService = LocationService();
   final NavigationService _navigationService = NavigationService();
   List<LatLng> _routePolyline = [];
-  LatLng? currentLocation;
   bool _mapInitialized = false;
   StreamSubscription<Position>? _positionStreamSubscription;
-  LatLng? _destination;
-  LatLng? _homeLocation;
   bool _isLoading = false;
   final bool _isFollowingUser = true;
+
 
   @override
   void initState() {
     super.initState();
     _initializeLocationUpdates();
-    _loadHomeLocation();
   }
+  void test(){
+
+  }
+
 
   @override
   void dispose() {
@@ -43,19 +50,26 @@ class _MapScreenState extends State<MapScreen> {
 
   Future<void> _initializeLocationUpdates() async {
     try {
-      // Get initial location
-      final position = await _navigationService.getCurrentLocation();
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
       setState(() {
-        currentLocation = LatLng(position.latitude, position.longitude);
+        _locationService..currentLocation = LatLng(position.latitude, position.longitude);
       });
-      _positionStreamSubscription = _navigationService.getPositionStream().listen((Position position) {
+
+      _positionStreamSubscription = Geolocator.getPositionStream(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+            distanceFilter: 10,
+          ))
+          .listen((Position position) {
         setState(() {
-          currentLocation = LatLng(position.latitude, position.longitude);
+          _locationService.currentLocation = LatLng(position.latitude, position.longitude);
         });
         if (_isFollowingUser && _mapInitialized) {
-          _mapController.move(currentLocation!, _mapController.camera.zoom);
+          _mapController.move(_locationService.currentLocation!, _mapController.camera.zoom);
         }
-        if (_destination != null && _routePolyline.isNotEmpty) {
+        if (_locationService.destination != null && _routePolyline.isNotEmpty) {
           _fetchRoute();
         }
       });
@@ -63,10 +77,9 @@ class _MapScreenState extends State<MapScreen> {
       _showErrorDialog(e.toString());
     }
   }
-
   void _moveMapToCurrentLocation() {
-    if (currentLocation != null) {
-      _mapController.move(currentLocation!, 14);
+    if (_locationService.currentLocation != null) {
+      _mapController.move(_locationService.currentLocation!, 14);
     }
   }
 
@@ -86,23 +99,12 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  Future<void> _loadHomeLocation() async {
-    final preferences = await SharedPreferences.getInstance();
-    final homeLat = preferences.getDouble('home_lat');
-    final homeLng = preferences.getDouble('home_lng');
-    if (homeLat != null && homeLng != null) {
-      setState(() {
-        _homeLocation = LatLng(homeLat, homeLng);
-      });
-    }
-  }
-
   Future<void> _saveHomeLocation(LatLng location) async {
     final preferences = await SharedPreferences.getInstance();
     await preferences.setDouble('home_lat', location.latitude);
     await preferences.setDouble('home_lng', location.longitude);
     setState(() {
-      _homeLocation = location;
+      _locationService.homeLocation = location;
     });
   }
 
@@ -134,8 +136,8 @@ class _MapScreenState extends State<MapScreen> {
           ),
           TextButton(
             onPressed: () async {
-              if (currentLocation != null) {
-                await _saveHomeLocation(currentLocation!);
+              if (_locationService.currentLocation != null) {
+                await _saveHomeLocation(_locationService.currentLocation!);
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Home location set!')),
@@ -150,7 +152,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<void> _showEditHomeDialog() async {
-    if (_homeLocation == null) {
+    if (_locationService.homeLocation == null) {
       return _showSetHomeDialog();
     }
     return showDialog(
@@ -183,13 +185,13 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<void> _fetchRoute() async {
-    if (currentLocation == null || _destination == null) return;
+    if (_locationService.currentLocation == null || _locationService.destination == null) return;
     setState(() {
       _isLoading = true;
     });
     try {
       // Fetch route data
-      final routePolyline = await _navigationService.getRoute(currentLocation!, _destination!);
+      final routePolyline = await  _navigationService.getRoute(_locationService.currentLocation!, _locationService.destination!);
       setState(() {
         _routePolyline = routePolyline;
         _isLoading = false;
@@ -225,14 +227,14 @@ class _MapScreenState extends State<MapScreen> {
         ),
       backgroundColor: Colors.grey[900],
       body: Container(
-        child: currentLocation == null
+        child: _locationService.currentLocation == null
             ? const Center(child: CircularProgressIndicator())
             : Stack(
           children: [
             FlutterMap(
               mapController: _mapController,
               options: MapOptions(
-                initialCenter: currentLocation!,
+                initialCenter: _locationService.currentLocation!,
                 initialZoom: 14,
                 onMapReady: () {
                   setState(() {
@@ -242,7 +244,7 @@ class _MapScreenState extends State<MapScreen> {
                 },
                 onTap: (tapPosition, point) {
                   setState(() {
-                    _destination = point;
+                    _locationService.destination = point;
                   });
                 },
               ),
@@ -254,7 +256,7 @@ class _MapScreenState extends State<MapScreen> {
                 MarkerLayer(
                   markers: [
                     Marker(
-                      point: currentLocation!,
+                      point: _locationService.currentLocation!,
                       width: 40,
                       height: 40,
                       child: SvgPicture.asset(
@@ -262,9 +264,9 @@ class _MapScreenState extends State<MapScreen> {
                         'assets/map-pin-user-fill.svg',
                       ),
                     ),
-                    if (_destination != null)
+                    if (_locationService.destination != null)
                       Marker(
-                        point: _destination!,
+                        point: _locationService.destination!,
                         width: 40,
                         height: 40,
                         child: SvgPicture.asset(
@@ -285,91 +287,7 @@ class _MapScreenState extends State<MapScreen> {
                 ),
               ],
             ),
-            Positioned(
-              top: 10,
-              left: 10,
-              child: Column(
-                children: [
-                  const SizedBox(height: 8),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.8,
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                        color: Colors.grey[900]!.withOpacity(0.9),
-                      borderRadius: BorderRadius.circular(100),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.5),
-                          spreadRadius: 1,
-                          blurRadius: 3,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: SizedBox(
-                      width: 380,
-                      height: 35,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              decoration: const InputDecoration(
-                                contentPadding: EdgeInsets.only(bottom: 10),
-                                border: InputBorder.none,
-                                hintText: 'Destination',
-                                hintStyle: TextStyle(color: Colors.grey),
-                              ),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontFamily: 'Poppins',
-                              ),
-                              controller: _textController,
-                              onSubmitted: (input) async {
-                                try {
-                                  final LatLng destinationCoordinates =
-                                  await _navigationService.geocodeAddress(input);
-                                  print('Resolved Destination: ${destinationCoordinates.latitude}, ${destinationCoordinates.longitude}');
-                                  _destination = LatLng(destinationCoordinates.latitude, destinationCoordinates.longitude);
-                                  final address = await _navigationService.reverseGeocode(_destination!);
-                                  _textController.text = address; // Update the text field with the resolved address
-                                  print(address);
-                                } catch (e) {
-                                  print('Error resolving destination: $e');
-                                }
-                              },
-                            ),
-                          ),
-                          SizedBox(
-                            width: 25,
-                            height: 25,
-                            child: GestureDetector(
-                              onLongPress: _showEditHomeDialog,
-                              child: IconButton(
-                                padding: EdgeInsets.zero,
-                                icon: SvgPicture.asset(
-                                  'assets/home-4-fill.svg',
-                                  color: Colors.blueAccent,
-                                ),
-                                onPressed: () {
-                                  if (_homeLocation != null) {
-                                    setState(() {
-                                      _destination = _homeLocation;
-                                    });
-                                    _mapController.move(_homeLocation!, 15);
-                                  } else {
-                                    _showSetHomeDialog();
-                                  }
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+
             Positioned(
               right: 25,
               bottom: 10,
@@ -381,8 +299,8 @@ class _MapScreenState extends State<MapScreen> {
                     backgroundColor: Colors.grey[900]!,
                     elevation: 3,
                     onPressed: () {
-                      if (currentLocation != null) {
-                        _mapController.move(currentLocation!, 18);
+                      if (_locationService.currentLocation != null) {
+                        _mapController.move(_locationService.currentLocation!, 18);
                       }
                     },
                     child: SvgPicture.asset(
@@ -393,7 +311,12 @@ class _MapScreenState extends State<MapScreen> {
                   const SizedBox(height: 15),
                   FloatingActionButton(
                     backgroundColor: Colors.grey[900]!,
-                    onPressed: _isLoading ? null : _fetchRoute,
+                    onPressed: _isLoading ? null : () async {
+                      await _fetchRoute();
+                      setState(() {
+                        _showTurnByTurn = true;
+                      });
+                    },
                     child: _isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
                         : SvgPicture.asset(
@@ -403,71 +326,23 @@ class _MapScreenState extends State<MapScreen> {
                 ],
               ),
             ),
-            Positioned(
-              top: 80,
-              right: 100,
-              left: 100,
-              bottom: 500,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[900]!.withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        offset: Offset(2, 2),
-                        blurRadius: 4, //
-                      ),
-                    ],
-                  ),
-                  padding: EdgeInsets.all(20), // Padding inside the box
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Column(
-                        children: [
-                          Image.asset(
-                            'assets/navigationicons/Roundabout1st.png',
-                            height: 100,
-                            width: 100,
-                            //color: Colors.white,
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            'current turn',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Expanded(child: Container()),
-                      Column(
-                        children: [
-                          Icon(
-                            Icons.arrow_left,
-                            color: Colors.grey,
-                            size: 50,
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            'In (x) distance',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: Colors.grey,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                )
-            ),
+            if (_showTurnByTurn)
+              TurnByTurn(
+                onClose: () {
+                  setState(() {
+                    _showTurnByTurn = false;
+                  });
+                },
+              ),
+            if (_showDestinationBar)
+              DestinationSearchBar(
+                onClose: () {
+                  setState(() {
+                    _showTurnByTurn = true;
+                    _showDestinationBar = false;
+                  });
+                },
+              ),
           ],
         ),
       ),
