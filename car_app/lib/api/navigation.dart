@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:car_app/location_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'dart:async';
@@ -6,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 class NavigationService {
 
   static const String _baseUrl = 'http://81.172.187.98:5000';
+  LocationService _locationService = LocationService();
   Future<List<LatLng>> getRoute(LatLng start, LatLng end) async {
     final url = '$_baseUrl/route/v1/car/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?overview=full&steps=true&geometries=geojson&annotations=true';
     final response = await http.get(Uri.parse(url));
@@ -54,6 +56,7 @@ class NavigationService {
     } else {
       throw Exception('Failed to fetch route data: ${response.statusCode}');
     }
+
   }
 
   String _generateInstruction(String type, String modifier, String streetName, String roundaboutExit, String previousRoad) {

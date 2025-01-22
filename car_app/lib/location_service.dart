@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class LocationService {
   LatLng? currentLocation;
-  LatLng? destination;
+  static LatLng? destination;
   LatLng? homeLocation;
 
   Future<Position> determinePosition() async {

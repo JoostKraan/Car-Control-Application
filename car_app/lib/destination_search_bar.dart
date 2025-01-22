@@ -1,9 +1,11 @@
+import 'package:car_app/map_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:car_app/api/navigation.dart';
 import 'package:car_app/location_service.dart';
+import 'package:provider/provider.dart';
 
 class DestinationSearchBar extends StatefulWidget {
   static MapController? _mapController;
@@ -31,29 +33,37 @@ class _DestinationSearchBarState extends State<DestinationSearchBar> {
   final TextEditingController _textController = TextEditingController();
   final NavigationService _navigationService = NavigationService();
   final LocationService _locationService = LocationService();
-  final MapController _mapController = MapController();
+  final MapScreen mapScreen = MapScreen();
 
   void _handleDestinationInput(String input) async {
     try {
       final LatLng destinationCoordinates = await _navigationService.geocodeAddress(input);
       setState(() {
-        _locationService.destination = destinationCoordinates;
+        LocationService.destination = destinationCoordinates;
       });
 
       final address = await _navigationService.reverseGeocode(destinationCoordinates);
       _textController.text = address;
-      _mapController.move(destinationCoordinates, 15); // Center map on destination
+      Provider.of<MapControllerNotifier>(context, listen: false)
+          .mapController
+          .move(destinationCoordinates, 15);
+      LocationService.destination = destinationCoordinates;
     } catch (e) {
       print('Error resolving destination: $e');
     }
+    //here location print
+
   }
 
   void _goToHome() {
     if (_locationService.homeLocation != null) {
       final home = _locationService.homeLocation!;
-      _mapController.move(home, 15);
+      Provider.of<MapControllerNotifier>(context, listen: false)
+          .mapController
+          .move(home, 15);
+
       setState(() {
-        _locationService.destination = home;
+        LocationService.destination = home;
       });
     } else {
       _showSetHomeDialog();

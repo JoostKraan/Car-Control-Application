@@ -9,19 +9,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:car_app/api/navigation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'destination_search_bar.dart';
+import 'package:provider/provider.dart';
 
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
+
   @override
   _MapScreenState createState() => _MapScreenState();
 }
 
 class _MapScreenState extends State<MapScreen> {
-
   bool _showTurnByTurn = false;
   bool _showDestinationBar = true;
-  final MapController _mapController = MapController();
+  late MapController _mapController;
   final LocationService _locationService = LocationService();
   final NavigationService _navigationService = NavigationService();
   List<LatLng> _routePolyline = [];
@@ -30,14 +31,11 @@ class _MapScreenState extends State<MapScreen> {
   bool _isLoading = false;
   final bool _isFollowingUser = true;
 
-
   @override
   void initState() {
     super.initState();
     _initializeLocationUpdates();
-  }
-  void test(){
-
+    _mapController = MapController();
   }
 
 
@@ -47,6 +45,7 @@ class _MapScreenState extends State<MapScreen> {
     _mapController.dispose();
     super.dispose();
   }
+
 
   Future<void> _initializeLocationUpdates() async {
     try {
@@ -69,7 +68,7 @@ class _MapScreenState extends State<MapScreen> {
         if (_isFollowingUser && _mapInitialized) {
           _mapController.move(_locationService.currentLocation!, _mapController.camera.zoom);
         }
-        if (_locationService.destination != null && _routePolyline.isNotEmpty) {
+        if (LocationService.destination != null && _routePolyline.isNotEmpty) {
           _fetchRoute();
         }
       });
@@ -185,13 +184,13 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<void> _fetchRoute() async {
-    if (_locationService.currentLocation == null || _locationService.destination == null) return;
+    if (_locationService.currentLocation == null || LocationService.destination == null) return;
     setState(() {
       _isLoading = true;
     });
     try {
       // Fetch route data
-      final routePolyline = await  _navigationService.getRoute(_locationService.currentLocation!, _locationService.destination!);
+      final routePolyline = await  _navigationService.getRoute(_locationService.currentLocation!, LocationService.destination!);
       setState(() {
         _routePolyline = routePolyline;
         _isLoading = false;
@@ -205,147 +204,163 @@ class _MapScreenState extends State<MapScreen> {
   }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          iconTheme: const IconThemeData(color: Colors.white),
-          backgroundColor: Colors.grey[900],
-          title: const Text(
-            'Map',
-            style: TextStyle(color: Colors.white, fontFamily: 'Poppins'),
-          ),
-          actions: [
-            IconButton(
-              icon: SvgPicture.asset(
-                'assets/settings-5-fill.svg',
-                color: Colors.white,
-                fit: BoxFit.contain,
-              ),
-              onPressed: () {
-              },
+    return ChangeNotifierProvider<MapControllerNotifier>.value(
+      value: MapControllerNotifier(_mapController),
+      child: Scaffold(
+          appBar: AppBar(
+            iconTheme: const IconThemeData(color: Colors.white),
+            backgroundColor: Colors.grey[900],
+            title: const Text(
+              'Map',
+              style: TextStyle(color: Colors.white, fontFamily: 'Poppins'),
             ),
-          ],
-        ),
-      backgroundColor: Colors.grey[900],
-      body: Container(
-        child: _locationService.currentLocation == null
-            ? const Center(child: CircularProgressIndicator())
-            : Stack(
-          children: [
-            FlutterMap(
-              mapController: _mapController,
-              options: MapOptions(
-                initialCenter: _locationService.currentLocation!,
-                initialZoom: 14,
-                onMapReady: () {
-                  setState(() {
-                    _mapInitialized = true;
-                  });
-                  _moveMapToCurrentLocation();
-                },
-                onTap: (tapPosition, point) {
-                  setState(() {
-                    _locationService.destination = point;
-                  });
+            actions: [
+              IconButton(
+                icon: SvgPicture.asset(
+                  'assets/settings-5-fill.svg',
+                  color: Colors.white,
+                  fit: BoxFit.contain,
+                ),
+                onPressed: () {
                 },
               ),
-              children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+            ],
+          ),
+        backgroundColor: Colors.grey[900],
+        body: Container(
+          child: _locationService.currentLocation == null
+              ? const Center(child: CircularProgressIndicator())
+              : Stack(
+            children: [
+              FlutterMap(
+                mapController: _mapController,
+                options: MapOptions(
+                  initialCenter: _locationService.currentLocation!,
+                  initialZoom: 14,
+                  onMapReady: () {
+                    setState(() {
+                      _mapInitialized = true;
+                    });
+                    _moveMapToCurrentLocation();
+                  },
+                  onTap: (tapPosition, point) {
+                    setState(() {
+                      LocationService.destination = point;
+                    });
+                  },
                 ),
-                MarkerLayer(
-                  markers: [
-                    Marker(
-                      point: _locationService.currentLocation!,
-                      width: 40,
-                      height: 40,
-                      child: SvgPicture.asset(
-                        color: Colors.blueAccent,
-                        'assets/map-pin-user-fill.svg',
-                      ),
-                    ),
-                    if (_locationService.destination != null)
+                children: [
+                  TileLayer(
+                    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                  ),
+                  MarkerLayer(
+                    markers: [
                       Marker(
-                        point: _locationService.destination!,
+                        point: _locationService.currentLocation!,
                         width: 40,
                         height: 40,
                         child: SvgPicture.asset(
-                          color: Colors.redAccent,
-                          'assets/map-pin-line.svg',
+                          color: Colors.blueAccent,
+                          'assets/map-pin-user-fill.svg',
                         ),
                       ),
-                  ],
-                ),
-                PolylineLayer(
-                  polylines: [
-                    Polyline(
-                      points: _routePolyline,
-                      strokeWidth: 5.0,
-                      color: Colors.blue,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-
-            Positioned(
-              right: 25,
-              bottom: 10,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  FloatingActionButton(
-                    backgroundColor: Colors.grey[900]!,
-                    elevation: 3,
-                    onPressed: () {
-                      if (_locationService.currentLocation != null) {
-                        _mapController.move(_locationService.currentLocation!, 18);
-                      }
-                    },
-                    child: SvgPicture.asset(
-                      color: Colors.white,
-                      'assets/compass-discover-fill.svg',
-                    ),
+                      if (LocationService.destination != null)
+                        Marker(
+                          point: LocationService.destination!,
+                          width: 40,
+                          height: 40,
+                          child: SvgPicture.asset(
+                            color: Colors.redAccent,
+                            'assets/map-pin-line.svg',
+                          ),
+                        ),
+                    ],
                   ),
-                  const SizedBox(height: 15),
-                  FloatingActionButton(
-                    backgroundColor: Colors.grey[900]!,
-                    onPressed: _isLoading ? null : () async {
-                      await _fetchRoute();
-                      setState(() {
-                        _showTurnByTurn = true;
-                      });
-                    },
-                    child: _isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : SvgPicture.asset(
-                        color: Colors.white,
-                        'assets/roadster-fill.svg'),
+                  PolylineLayer(
+                    polylines: [
+                      Polyline(
+                        points: _routePolyline,
+                        strokeWidth: 5.0,
+                        color: Colors.blue,
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ),
-            if (_showTurnByTurn)
-              TurnByTurn(
-                onClose: () {
-                  setState(() {
-                    _showTurnByTurn = false;
-                  });
-                },
+      
+              Positioned(
+                right: 25,
+                bottom: 10,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    FloatingActionButton(
+                      backgroundColor: Colors.grey[900]!,
+                      elevation: 3,
+                      onPressed: () {
+                        if (_locationService.currentLocation != null) {
+                          _mapController.move(_locationService.currentLocation!, 18);
+                        }
+                      },
+                      child: SvgPicture.asset(
+                        color: Colors.white,
+                        'assets/compass-discover-fill.svg',
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    FloatingActionButton(
+                      backgroundColor: Colors.grey[900]!,
+                      onPressed: _isLoading ? null : () async {
+                        await _fetchRoute();
+                        setState(() {
+                          _showTurnByTurn = true;
+                        });
+                      },
+                      child: _isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : SvgPicture.asset(
+                          color: Colors.white,
+                          'assets/roadster-fill.svg'),
+                    ),
+                  ],
+                ),
               ),
-            if (_showDestinationBar)
-              DestinationSearchBar(
-                onClose: () {
-                  setState(() {
-                    _showTurnByTurn = true;
-                    _showDestinationBar = false;
-                  });
-                },
-              ),
-          ],
+              if (_showTurnByTurn)
+                TurnByTurn(
+                  onClose: () {
+                    setState(() {
+                      _showTurnByTurn = false;
+                    });
+                  },
+                ),
+              if (_showDestinationBar)
+                DestinationSearchBar(
+                  onClose: () {
+                    setState(() {
+                      _showTurnByTurn = true;
+                      _showDestinationBar = false;
+                    });
+                  },
+                ),
+            ],
+          ),
         ),
       ),
     );
   }
+}
+class MapControllerNotifier extends ChangeNotifier {
+  MapController _mapController;
+
+  MapControllerNotifier(this._mapController);
+
+  MapController get mapController => _mapController;
+
+  void move(LatLng center, double zoom) {
+    _mapController.move(center, zoom);
+    notifyListeners();
+  }
+
 }
