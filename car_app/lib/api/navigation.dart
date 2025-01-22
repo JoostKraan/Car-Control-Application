@@ -7,6 +7,9 @@ import 'package:geolocator/geolocator.dart';
 class NavigationService {
 
   static const String _baseUrl = 'http://81.172.187.98:5000';
+  static String distance = '';
+  static String duration = '';
+  static String arrivalTime = '';
   LocationService _locationService = LocationService();
   Future<List<LatLng>> getRoute(LatLng start, LatLng end) async {
     final url = '$_baseUrl/route/v1/car/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?overview=full&steps=true&geometries=geojson&annotations=true';
@@ -38,7 +41,7 @@ class NavigationService {
           }
         }
       }
-      print('Total Distance : ${(distance / 1000).toDouble().toStringAsFixed(1)} km ');
+      NavigationService.distance = (distance / 1000).toDouble().toStringAsFixed(1);
       distance.toDouble();
       final Duration duration = Duration(seconds: timeTillArrival.toInt());
 
@@ -48,14 +51,16 @@ class NavigationService {
       } else {
         formattedDuration = '${duration.inMinutes.toDouble()} minutes';
       }
-
       print('Duration: ${(formattedDuration)}');
       final String destination = await reverseGeocode(end);
       print(destination);
+      NavigationService.duration = formattedDuration;
+      //NavigationService.distance =
       return coordinates.map((coord) => LatLng(coord[1], coord[0])).toList();
     } else {
       throw Exception('Failed to fetch route data: ${response.statusCode}');
     }
+
 
   }
 

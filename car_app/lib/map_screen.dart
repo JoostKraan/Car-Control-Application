@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:car_app/location_service.dart';
+import 'package:car_app/map_footer.dart';
 import 'package:car_app/turn-by-turn.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -22,6 +23,7 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   bool _showTurnByTurn = false;
   bool _showDestinationBar = true;
+  bool _showfooter = false;
   late MapController _mapController;
   final LocationService _locationService = LocationService();
   final NavigationService _navigationService = NavigationService();
@@ -315,7 +317,9 @@ class _MapScreenState extends State<MapScreen> {
                       onPressed: _isLoading ? null : () async {
                         await _fetchRoute();
                         setState(() {
+                          _showDestinationBar = false;
                           _showTurnByTurn = true;
+                          _showfooter = true;
                         });
                       },
                       child: _isLoading
@@ -341,6 +345,14 @@ class _MapScreenState extends State<MapScreen> {
                     setState(() {
                       _showTurnByTurn = true;
                       _showDestinationBar = false;
+                    });
+                  },
+                ),
+              if (_showfooter)
+                footer(
+                  onClose: () {
+                    setState(() {
+                      _showfooter = true;
                     });
                   },
                 ),
