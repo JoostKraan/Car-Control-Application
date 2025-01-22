@@ -1,3 +1,4 @@
+import 'package:car_app/api/navigation.dart';
 import 'package:flutter/material.dart';
 
 class footer extends StatefulWidget {
@@ -35,7 +36,7 @@ class _footerState extends State<footer> {
         ),
         child: Row(
           children: [
-            SizedBox(width: 80,),
+            SizedBox(width: 40,),
             Column(
               children: [
                 SizedBox(height: 20),
@@ -45,24 +46,25 @@ class _footerState extends State<footer> {
                       fontFamily: 'Poppins',
                       color: Colors.white,
                     ),
-                    '23 minutes'),
+                    NavigationService.duration),
                 SizedBox(height: 20),
                 Text(
                     style: TextStyle(
                       fontFamily: 'Poppins',
                       color: Colors.white,
                     ),
-                    '20 Billion km'),
+                    NavigationService.distance + ' Km'),
               ],
             ),
-            SizedBox(width: 40,),
+            SizedBox(width: 30,),
             Container(
               child: Text(
                 style: TextStyle(
+                  fontSize: 20,
                   color: Colors.white,
                   fontFamily: 'Poppins'
                 ),
-                '10:30',
+                NavigationService.arrivalTime,
               ),
             )
 

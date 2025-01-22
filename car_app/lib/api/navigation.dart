@@ -1,16 +1,15 @@
 import 'dart:convert';
-import 'package:car_app/location_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
+import 'package:intl/intl.dart';
 class NavigationService {
 
   static const String _baseUrl = 'http://81.172.187.98:5000';
   static String distance = '';
   static String duration = '';
   static String arrivalTime = '';
-  LocationService _locationService = LocationService();
   Future<List<LatLng>> getRoute(LatLng start, LatLng end) async {
     final url = '$_baseUrl/route/v1/car/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?overview=full&steps=true&geometries=geojson&annotations=true';
     final response = await http.get(Uri.parse(url));
@@ -33,9 +32,6 @@ class NavigationService {
           if (streetName.isEmpty && maneuverType != 'arrive' && maneuverType != 'depart') {
             streetName = 'the road';
           }
-          final instruction = _generateInstruction(maneuverType, modifier, streetName, roundaboutExit?.toString() ?? '', previousRoad);
-          print(instruction);
-
           if (streetName.isNotEmpty && streetName != 'the road') {
             previousRoad = streetName;
           }
@@ -46,77 +42,24 @@ class NavigationService {
       final Duration duration = Duration(seconds: timeTillArrival.toInt());
 
       String formattedDuration;
+      final now = DateTime.now();
+      final arrivalTime = now.add(duration);
+      final formatter = DateFormat('HH:mm');
+      NavigationService.arrivalTime = formatter.format(arrivalTime);
       if (duration.inHours > 0) {
-        formattedDuration = '${duration.inHours.toDouble()} hours ${(duration.inMinutes.remainder(60)).toDouble()} minutes';
+        formattedDuration = '${duration.inHours.toDouble()} hr ${(duration.inMinutes.remainder(60)).toDouble()} min';
       } else {
-        formattedDuration = '${duration.inMinutes.toDouble()} minutes';
+        formattedDuration = '${duration.inMinutes.toDouble()} min';
       }
-      print('Duration: ${(formattedDuration)}');
-      final String destination = await reverseGeocode(end);
-      print(destination);
       NavigationService.duration = formattedDuration;
-      //NavigationService.distance =
+
+
       return coordinates.map((coord) => LatLng(coord[1], coord[0])).toList();
     } else {
       throw Exception('Failed to fetch route data: ${response.statusCode}');
     }
-
-
   }
 
-  String _generateInstruction(String type, String modifier, String streetName, String roundaboutExit, String previousRoad) {
-    final String direction = _getDirectionPhrase(modifier);
-
-    switch (type) {
-      case 'turn':
-        return 'Turn $direction onto $streetName';
-      case 'depart':
-        return 'Start your journey on ${streetName.isEmpty ? 'the current road' : streetName}';
-      case 'arrive':
-        return 'You have arrived at your destination on $streetName';
-      case 'roundabout':
-        if (roundaboutExit.isNotEmpty) {
-          final int? exitNumber = int.tryParse(roundaboutExit);
-          if (exitNumber != null) {
-            final String ordinalExit = _convertToOrdinal(exitNumber);
-            return 'At the roundabout, take the $ordinalExit exit onto $streetName';
-          }
-        }
-        return 'Exit the roundabout onto $streetName';
-      case 'merge':
-        if (previousRoad.isNotEmpty) {
-          return 'Merge $direction from $previousRoad onto the highway';
-        }
-        return 'Merge $direction onto the highway';
-      case 'continue':
-        if (streetName == 'the road') {
-          return 'Continue $direction';
-        }
-        return 'Continue $direction onto $streetName';
-      default:
-        if (modifier == 'straight') {
-          return 'Continue straight ahead';
-        } else if (streetName == 'the road') {
-          return 'Keep $direction';
-        }
-        return 'Keep $direction onto $streetName';
-    }
-  }
-
-  String _getDirectionPhrase(String modifier) {
-    switch (modifier) {
-      case 'slight right':
-        return 'slightly right';
-      case 'slight left':
-        return 'slightly left';
-      case 'sharp right':
-        return 'sharply right';
-      case 'sharp left':
-        return 'sharply left';
-      default:
-        return modifier;
-    }
-  }
   Future<LatLng> geocodeAddress(String address) async {
     final url =
         'https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(address)}&format=json&addressdetails=1&limit=1';
@@ -137,8 +80,6 @@ class NavigationService {
       throw Exception('Failed to fetch address');
     }
   }
-
-
   Stream<Position> getPositionStream() {
     return Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
@@ -170,7 +111,7 @@ class NavigationService {
       throw Exception('Failed to fetch address');
     }
   }
-  String _convertToOrdinal(int number) {
+   String _convertToOrdinal(int number) {
     if (number >= 11 && number <= 13) {
       return '${number}th';
     }

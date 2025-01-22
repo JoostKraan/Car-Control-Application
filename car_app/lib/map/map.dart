@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:car_app/map_screen.dart';
+import 'package:car_app/map/map_screen.dart';
 
 class MapButton extends StatelessWidget {
   const MapButton({super.key});

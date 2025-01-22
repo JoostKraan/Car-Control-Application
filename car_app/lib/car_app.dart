@@ -4,7 +4,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:car_app/car_image.dart';
 import 'package:car_app/fuel_display.dart';
 import 'package:car_app/lock.dart';
-import 'package:car_app/map.dart';
+import 'package:car_app/map/map.dart';
+
 
 class CarApp extends StatefulWidget {
   const CarApp({super.key});

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:car_app/location_service.dart';
-import 'package:car_app/map_footer.dart';
-import 'package:car_app/turn-by-turn.dart';
+import 'package:car_app/map/map_footer.dart';
+import 'package:car_app/map/turn-by-turn.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';

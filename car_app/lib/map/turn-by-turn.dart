@@ -1,5 +1,5 @@
+import 'package:car_app/map/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class TurnByTurn extends StatefulWidget {
   final VoidCallback onClose;
@@ -14,13 +14,14 @@ class TurnByTurn extends StatefulWidget {
 }
 
 class _TurnByTurnState extends State<TurnByTurn> {
+  InstructionImages images = InstructionImages();
   @override
   Widget build(BuildContext context) {
     return Positioned(
       top: 10,
       right: 10,
       left: 10,
-      bottom: 650,
+      bottom: 640,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.grey[900]!.withOpacity(0.9),
@@ -34,15 +35,26 @@ class _TurnByTurnState extends State<TurnByTurn> {
           ],
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.max,
           children: [
-            SizedBox(height: 15,),
+            SizedBox(height: 10,),
+            Row(
+              children: [
+                SizedBox(width: 20,),
+                Text(
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                      fontFamily: 'Poppin',
+                    ),
+                    'in 200 Meters'),
+              ],
+            ),
             Row(
               children: [
                 SizedBox(width: 25,),
                 Image.asset(
-                  'assets/navigationicons/Roundabout1st.png',
+                  images.instructionImages[1],
+                  //'assets/navigationicons/Roundabout1st.png',
                   height: 75,
                   width: 75,
                 ),
@@ -60,14 +72,7 @@ class _TurnByTurnState extends State<TurnByTurn> {
               children: [
                 Row(
                   children: [
-                    SizedBox(width: 25,),
-                    Text(
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
-                          fontFamily: 'Poppin',
-                        ),
-                        '200 Meters'),
+                    SizedBox(width: 110,),
                     SizedBox(width: 60,),
                     const Text(
                       'Next Street',
