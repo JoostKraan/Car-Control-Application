@@ -41,7 +41,6 @@ class LocationService {
   Future<Position> getCurrentLocation() async {
     try {
       final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
       );
       currentLocation = LatLng(position.latitude, position.longitude);
       return position;
@@ -54,7 +53,7 @@ class LocationService {
     return Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.high,
-        distanceFilter: 10,
+        distanceFilter: 1,
       ),
     );
   }

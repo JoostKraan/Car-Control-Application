@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:car_app/api/turn_api.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'dart:async';
@@ -7,6 +8,8 @@ import 'package:intl/intl.dart';
 class NavigationService {
 
   static const String _baseUrl = 'http://81.172.187.98:5000';
+  static Map<String, dynamic>? cachedRouteData;
+  static List<NavigationStep> navigationSteps = [];
   static String distance = '';
   static String duration = '';
   static String arrivalTime = '';
@@ -16,6 +19,8 @@ class NavigationService {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
+      cachedRouteData = data;
+      TurnByTurnService.startTurnByTurnNavigation();
       final double distance = data['routes'][0]['distance'];
       final double timeTillArrival = data['routes'][0]['duration'];
       final List<dynamic> coordinates = data['routes'][0]['geometry']['coordinates'];
