@@ -1,17 +1,13 @@
 import 'dart:async';
 import 'package:car_app/location_service.dart';
-import 'package:car_app/map/map_footer.dart';
-import 'package:car_app/map/turn-by-turn.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:car_app/api/navigation.dart';
 import 'package:geolocator/geolocator.dart';
-import 'destination_search_bar.dart';
 import 'package:provider/provider.dart';
-
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -21,17 +17,13 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  bool _showTurnByTurn = false;
-  bool _showDestinationBar = true;
-  bool _showfooter = false;
   late MapController _mapController;
   final LocationService _locationService = LocationService();
-  final NavigationService _navigationService = NavigationService();
   List<LatLng> _routePolyline = [];
   bool _mapInitialized = false;
   StreamSubscription<Position>? _positionStreamSubscription;
   bool _isLoading = false;
-  final bool _isFollowingUser = true;
+  final bool _isFollowingUser = false;
 
   @override
   void initState() {
@@ -192,9 +184,7 @@ class _MapScreenState extends State<MapScreen> {
     });
     try {
       // Fetch route data
-      final routePolyline = await  _navigationService.getRoute(_locationService.currentLocation!, LocationService.destination!);
       setState(() {
-        _routePolyline = routePolyline;
         _isLoading = false;
       });
     } catch (e) {
@@ -317,9 +307,6 @@ class _MapScreenState extends State<MapScreen> {
                       onPressed: _isLoading ? null : () async {
                         await _fetchRoute();
                         setState(() {
-                          _showDestinationBar = false;
-                          _showTurnByTurn = true;
-                          _showfooter = true;
                         });
                       },
                       child: _isLoading
@@ -331,31 +318,6 @@ class _MapScreenState extends State<MapScreen> {
                   ],
                 ),
               ),
-              if (_showTurnByTurn)
-                TurnByTurn(
-                  onClose: () {
-                    setState(() {
-                      _showTurnByTurn = false;
-                    });
-                  },
-                ),
-              if (_showDestinationBar)
-                DestinationSearchBar(
-                  onClose: () {
-                    setState(() {
-                      _showTurnByTurn = true;
-                      _showDestinationBar = false;
-                    });
-                  },
-                ),
-              if (_showfooter)
-                footer(
-                  onClose: () {
-                    setState(() {
-                      _showfooter = true;
-                    });
-                  },
-                ),
             ],
           ),
         ),
