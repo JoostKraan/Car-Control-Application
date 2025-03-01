@@ -1,3 +1,5 @@
+import 'package:car_app/dashboard.dart';
+import 'package:car_app/notifications/notificationbutton.dart';
 import 'package:car_app/trip_history.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -15,27 +17,7 @@ class CarApp extends StatefulWidget {
 }
 
 class _CarAppState extends State<CarApp> {
-  int fuelLevel = 0;
-  String carTitle = 'Escort';
   bool isLocked = true;
-  bool isEditing = false;
-  TextEditingController carTitleController = TextEditingController();
-
-  void lockCar() {
-    setState(() {
-      isLocked = !isLocked;
-    });
-  }
-
-  void toggleEdit() {
-    setState(() {
-      isEditing = !isEditing;
-      if (!isEditing) {
-        carTitle = carTitleController.text;
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
 
@@ -49,49 +31,19 @@ class _CarAppState extends State<CarApp> {
           children: [
             Row(
               children: [
-                if (isEditing)
-                  Expanded(
-                    child: TextField(
-                      controller: carTitleController,
-                      style: const TextStyle(color: Colors.white),
-                      autofocus: true,
-                      decoration: const InputDecoration(
-                        hintText: 'Enter car name',
-                        hintStyle: TextStyle(color: Colors.white),
-                        border: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  )
-                else
-                  Text(
-                    carTitle,
-                    style: const TextStyle(
-                      fontFamily: 'Poppins',
-                      color: Colors.white,
-                      shadows: [
-                        Shadow(
-                          offset: Offset(2.0, 2.0),
-                          blurRadius: 10.0,
-                          color: Colors.black,
-                        ),
-                      ],
-                    ),
-                  ),
-                const SizedBox(width: 10),
-                IconButton(
-                  icon: SvgPicture.asset(
-                    'assets/edit-line.svg',
-                    height: 25,
-                    width: 25,
+                FuelDisplay(fuelLevel: 0),
+                SizedBox(width: 100),
+                Text(
+                  '200 km',
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
                     color: Colors.white,
+                    fontSize: 20,
                   ),
-                  onPressed: toggleEdit,
                 ),
-                SizedBox(
-                  width: 225,
-                ),
+               Spacer(),
+                NotificationButton(),
+                SizedBox(width: 10),
                 IconButton(
                   onPressed: () {
                     Navigator.push(
@@ -108,8 +60,6 @@ class _CarAppState extends State<CarApp> {
                 )
               ],
             ),
-
-            FuelDisplay(fuelLevel: fuelLevel),
           ],
         ),
       ),
@@ -130,13 +80,15 @@ class _CarAppState extends State<CarApp> {
                     'assets/roadster-fill.svg',
                   ),
                 ),
-                LockButton(
-                  isLocked: isLocked,
-                  onLock: lockCar,
-                ),
+                LockButton(),
                 MapButton(),
               ],
             ),
+          ),
+          Column(
+            children: [
+              Dashboard()
+            ],
           ),
         ],
       ),

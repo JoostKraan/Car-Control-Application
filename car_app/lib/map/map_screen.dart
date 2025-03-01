@@ -257,25 +257,6 @@ class _MapScreenState extends State<MapScreen> {
                           'assets/map-pin-user-fill.svg',
                         ),
                       ),
-                      if (LocationService.destination != null)
-                        Marker(
-                          point: LocationService.destination!,
-                          width: 40,
-                          height: 40,
-                          child: SvgPicture.asset(
-                            color: Colors.redAccent,
-                            'assets/map-pin-line.svg',
-                          ),
-                        ),
-                    ],
-                  ),
-                  PolylineLayer(
-                    polylines: [
-                      Polyline(
-                        points: _routePolyline,
-                        strokeWidth: 5.0,
-                        color: Colors.blue,
-                      ),
                     ],
                   ),
                 ],
