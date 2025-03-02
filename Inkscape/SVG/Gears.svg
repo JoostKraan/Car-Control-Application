@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="207mm"
+   viewBox="0 0 210 207"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4 (86a8ad7, 2024-10-11)"
+   sodipodi:docname="Gears.svg"
+   inkscape:export-filename="Reverse_Gear.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="0.70710678"
+     inkscape:cx="240.4163"
+     inkscape:cy="587.60573"
+     inkscape:window-width="3440"
+     inkscape:window-height="1369"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g18" />
+  <defs
+     id="defs1">
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect18"
+       is_visible="true"
+       lpeversion="1.3"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false"
+       uniform="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect17"
+       is_visible="true"
+       lpeversion="1.3"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false"
+       uniform="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect16"
+       is_visible="true"
+       lpeversion="1.3"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false"
+       uniform="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect15"
+       is_visible="true"
+       lpeversion="1.3"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false"
+       uniform="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect13"
+       is_visible="true"
+       lpeversion="1.3"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false"
+       uniform="false" />
+    <rect
+       x="230.23257"
+       y="322.39362"
+       width="23.465359"
+       height="25.505825"
+       id="rect5" />
+    <rect
+       x="230.23257"
+       y="322.39362"
+       width="23.465359"
+       height="25.505825"
+       id="rect2" />
+    <rect
+       x="230.23257"
+       y="322.39362"
+       width="23.465359"
+       height="25.505825"
+       id="rect3" />
+    <rect
+       x="230.23257"
+       y="322.39362"
+       width="23.465359"
+       height="25.505825"
+       id="rect4" />
+    <rect
+       x="230.23257"
+       y="322.39362"
+       width="23.465359"
+       height="25.505825"
+       id="rect6" />
+    <rect
+       x="230.23257"
+       y="322.39362"
+       width="23.465359"
+       height="25.505825"
+       id="rect7" />
+    <rect
+       x="230.23257"
+       y="322.39362"
+       width="23.465359"
+       height="25.505825"
+       id="rect18" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g18"
+       transform="matrix(1.1675741,0,0,1.1675741,-32.301238,-18.139811)">
+      <circle
+         style="fill:#000000;stroke:#000000;stroke-width:0.454582;stroke-linecap:square;paint-order:stroke fill markers"
+         id="circle2"
+         cx="53.744774"
+         cy="41.00967"
+         r="24.86886" />
+      <text
+         xml:space="preserve"
+         transform="matrix(2.9302896,0,0,2.9302896,-625.54448,-921.75613)"
+         id="text5"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;font-family:Poppins;-inkscape-font-specification:'Poppins, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect5);display:inline;fill:#656565;fill-opacity:1;stroke:#000000;stroke-width:0.8;stroke-linecap:square;paint-order:stroke fill markers"><tspan
+           x="230.23242"
+           y="332.89453"
+           id="tspan7">1</tspan></text>
+      <circle
+         style="fill:#000000;stroke:#000000;stroke-width:0.454582;stroke-linecap:square;paint-order:stroke fill markers"
+         id="circle5"
+         cx="53.744774"
+         cy="167.21704"
+         r="24.86886" />
+      <text
+         xml:space="preserve"
+         transform="matrix(2.9302896,0,0,2.9302896,-631.15305,-795.17953)"
+         id="text2"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;font-family:Poppins;-inkscape-font-specification:'Poppins, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect2);display:inline;fill:#666666;fill-opacity:1;stroke:#000000;stroke-width:0.8;stroke-linecap:square;paint-order:stroke fill markers"><tspan
+           x="230.23242"
+           y="332.89453"
+           id="tspan8">2</tspan></text>
+      <circle
+         style="fill:#000000;stroke:#000000;stroke-width:0.454582;stroke-linecap:square;paint-order:stroke fill markers"
+         id="circle1"
+         cx="117.59531"
+         cy="41.00967"
+         r="24.86886" />
+      <text
+         xml:space="preserve"
+         transform="matrix(2.9302896,0,0,2.9302896,-567.19702,-921.59786)"
+         id="text4"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;font-family:Poppins;-inkscape-font-specification:'Poppins, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect4);display:inline;fill:#666666;fill-opacity:1;stroke:#000000;stroke-width:0.8;stroke-linecap:square;paint-order:stroke fill markers"><tspan
+           x="230.23242"
+           y="332.89453"
+           id="tspan9">3</tspan></text>
+      <circle
+         style="fill:#000000;stroke:#000000;stroke-width:0.454582;stroke-linecap:square;paint-order:stroke fill markers"
+         id="circle4"
+         cx="117.59531"
+         cy="167.21704"
+         r="24.86886" />
+      <text
+         xml:space="preserve"
+         transform="matrix(2.9302896,0,0,2.9302896,-568.30467,-795.67181)"
+         id="text3"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;font-family:Poppins;-inkscape-font-specification:'Poppins, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect3);display:inline;fill:#656565;fill-opacity:1;stroke:#000000;stroke-width:0.8;stroke-linecap:square;paint-order:stroke fill markers"><tspan
+           x="230.23242"
+           y="332.89453"
+           id="tspan10">4</tspan></text>
+      <path
+         style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:2.5;stroke-linecap:square;stroke-dasharray:none;paint-order:stroke fill markers"
+         d="m 79.104214,123.80433 c 0,-5.98713 0,-11.97425 0,-17.96138"
+         id="path15"
+         sodipodi:nodetypes="cc"
+         inkscape:original-d="m 79.104214,123.80433 c 0,-5.98713 0,-11.97425 0,-17.96138"
+         inkscape:path-effect="#path-effect16"
+         transform="matrix(4.2567026,0,0,4.2567026,-219.12827,-384.66059)" />
+      <circle
+         style="fill:#000000;stroke:#000000;stroke-width:0.454582;stroke-linecap:square;paint-order:stroke fill markers"
+         id="path1"
+         cx="181.44585"
+         cy="41.00967"
+         r="24.86886" />
+      <text
+         xml:space="preserve"
+         transform="matrix(2.9302896,0,0,2.9302896,-504.48929,-921.77371)"
+         id="text6"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;font-family:Poppins;-inkscape-font-specification:'Poppins, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect6);display:inline;fill:#656565;fill-opacity:1;stroke:#010101;stroke-width:0.79998124;stroke-linecap:square;paint-order:stroke fill markers;stroke-opacity:1;stroke-dasharray:none"><tspan
+           x="230.23242"
+           y="332.89453"
+           id="tspan11">5</tspan></text>
+      <circle
+         style="fill:#000000;stroke:#000000;stroke-width:0.454582;stroke-linecap:square;paint-order:stroke fill markers"
+         id="circle3"
+         cx="181.44585"
+         cy="167.21704"
+         r="24.86886" />
+      <text
+         xml:space="preserve"
+         transform="matrix(2.9302896,0,0,2.9302896,-504.27831,-796.00587)"
+         id="text7"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;font-family:Poppins;-inkscape-font-specification:'Poppins, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect7);display:inline;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.8;stroke-linecap:square;paint-order:stroke fill markers"><tspan
+           x="230.23242"
+           y="332.89453"
+           id="tspan12">R</tspan></text>
+      <path
+         style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:2.5;stroke-linecap:square;stroke-dasharray:none;paint-order:stroke fill markers"
+         d="m 94.103816,123.8064 c 0,-6.51708 0,-13.03416 0,-19.55124"
+         id="path16"
+         inkscape:original-d="m 94.103816,123.8064 c 0,-6.51708 0,-13.03416 0,-19.55124"
+         inkscape:path-effect="#path-effect17"
+         transform="matrix(4.2567026,0,0,4.2567026,-219.12827,-384.66059)" />
+      <path
+         style="opacity:1;fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:10.905;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+         d="M 53.744787,143.88026 V 63.580452"
+         id="path12"
+         sodipodi:nodetypes="ccc"
+         inkscape:connector-curvature="0"
+         inkscape:connector-type="polyline" />
+      <path
+         style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:2.5;stroke-linecap:square;stroke-dasharray:none;paint-order:stroke fill markers"
+         d="m 64.105646,114.74028 c 10.028674,0 20.057346,0 30.086019,0"
+         id="path17"
+         transform="matrix(4.230781,0,0,4.2567026,-217.49893,-384.66059)"
+         inkscape:original-d="m 64.105646,114.74028 c 10.028674,0 20.057346,0 30.086019,0"
+         inkscape:path-effect="#path-effect18" />
+      <circle
+         style="fill:#000000;stroke:#000000;stroke-width:0.454582;stroke-linecap:square;paint-order:stroke fill markers"
+         id="circle18"
+         cx="117.59531"
+         cy="104.18166"
+         r="24.86886" />
+      <text
+         xml:space="preserve"
+         transform="matrix(2.9302896,0,0,2.9302896,-569.39474,-859.02367)"
+         id="text18"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;font-family:Poppins;-inkscape-font-specification:'Poppins, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect18);display:inline;fill:#666666;fill-opacity:1;stroke:#000000;stroke-width:0.8;stroke-linecap:square;paint-order:stroke fill markers"><tspan
+           x="230.23242"
+           y="332.89453"
+           id="tspan13">N</tspan></text>
+    </g>
+  </g>
+</svg>
