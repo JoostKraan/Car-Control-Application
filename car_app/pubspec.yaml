@@ -12,14 +12,13 @@ dependencies:
   flutter_map: ^7.0.2
   latlong2: ^0.9.0
   geolocator: ^13.0.2
-  cupertino_icons: ^1.0.8
   flutter_svg: ^2.0.16
   permission_handler: ^11.0.1
   http: ^1.2.2
   shared_preferences: ^2.0.0
   device_preview_plus: ^2.2.3
   provider: ^6.0.3
-  linear_progress_bar: ^1.1.3
+  flutter_dotenv: ^5.2.1
 
   geocoding: any
   time: ^2.1.5
@@ -31,12 +30,12 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
+##Material 3 icons used
   assets:
-    - assets/gears/
-    - assets/
-    - assets/navigationicons/
+    - assets/icons/
+    - assets/img/
   fonts:
-    - family: Poppins
+    - family: Manrope
       fonts:
-        - asset: fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Manrope-VariableFont_wght.ttf
+          weight: 400
