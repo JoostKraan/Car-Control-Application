@@ -35,5 +35,18 @@ class ConstantsProvider extends ChangeNotifier {
     await _writeData(_isDarkMode);
     notifyListeners();
   }
+  Future<void> setLightMode() async {
+    _isDarkMode = false;
+    _constants = Constants(_isDarkMode);
+    await _writeData(_isDarkMode);
+    notifyListeners();
+  }
+  Future<void> setDarkMode() async {
+    _isDarkMode = true;
+    _constants = Constants(_isDarkMode);
+    await _writeData(_isDarkMode);
+    notifyListeners();
+  }
+
 }
 

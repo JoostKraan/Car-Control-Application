@@ -22,30 +22,71 @@ class _SettingsState extends State<Settings> {
           children: [
             Row(
               children: [
-                Builder(
-                  builder: (context) {
-                    return IconButton(
-                        onPressed: () {
-                          Navigator.of(context).pushNamed('/');
-                        },
-                        icon: SvgPicture.asset(
-                          'assets/icons/arrow-back.svg',
-                          width: constants.iconSize,
-                          height: constants.iconSize,
-                          color: constants.iconColor,
-                        ));
-                  }
-                ),
+                Builder(builder: (context) {
+                  return IconButton(
+                      onPressed: () {
+                        Navigator.of(context).pushNamed('/');
+                      },
+                      icon: SvgPicture.asset(
+                        'assets/icons/arrow-back.svg',
+                        width: constants.iconSize,
+                        height: constants.iconSize,
+                        color: constants.iconColor,
+                      ));
+                }),
                 Spacer(),
                 Text(
                   'Settings',
                   style: TextStyle(
-                      fontSize: constants.fontSize, color: constants.fontColor),
+                      fontSize: constants.fontSize * 1.2,
+                      color: constants.fontColor),
                 ),
                 Spacer(),
+
+
               ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 30),
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: Text('Theme',style: TextStyle(color: constants.fontColor, fontSize: constants.fontSize*1.2),),
+                  ),
+                  Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 30),
+                    child: OutlinedButton(
+                      onPressed: () =>
+                          context.read<ConstantsProvider>().setLightMode(),
+                      child: Text('light'),
+                      style: ButtonStyle(
+                          foregroundColor:  MaterialStateProperty.all<Color>(
+                            constants.isDarkMode ?
+                              constants.fontColor : constants.secondaryColor) ,
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              constants.primaryColor)),
+                    ),
+                  ),
+                  OutlinedButton(
+                    onPressed: () =>
+                        context.read<ConstantsProvider>().setDarkMode(),
+                    child: Text('dark'),
+                    style: ButtonStyle(
+                        foregroundColor:  MaterialStateProperty.all<Color>(
+                            !constants.isDarkMode ?
+                            constants.fontColor : constants.secondaryColor) ,
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            constants.primaryColor)),
+                  ),
+                  Spacer(),
+                ],
+              ),
             )
           ],
-        )));
+        )
+        )
+    );
   }
 }

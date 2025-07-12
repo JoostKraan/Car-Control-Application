@@ -29,15 +29,6 @@ class LocationService {
     return await Geolocator.getCurrentPosition();
   }
 
-  Future<void> loadHomeLocation() async {
-    final preferences = await SharedPreferences.getInstance();
-    final homeLat = preferences.getDouble('home_lat');
-    final homeLng = preferences.getDouble('home_lng');
-    if (homeLat != null && homeLng != null) {
-      homeLocation = LatLng(homeLat, homeLng);
-    }
-  }
-
   Future<Position> getCurrentLocation() async {
     try {
       final position = await Geolocator.getCurrentPosition(
