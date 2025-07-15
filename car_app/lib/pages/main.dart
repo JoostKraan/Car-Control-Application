@@ -1,10 +1,10 @@
 import 'package:car_app/pages/settings.dart';
+import 'package:car_app/providers/car_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
-
 import '../providers/constants-provider.dart';
 import '../services/location_service.dart';
 import 'map_screen.dart';
@@ -16,15 +16,13 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => constantsProvider,
-        ),
+        ChangeNotifierProvider(create: (_) => constantsProvider),
+        ChangeNotifierProvider(create: (_) => CarData()),
       ],
       child: const MyApp(),
     ),
   );
 }
-
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -35,7 +33,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final LocationService locationService = LocationService();
-  LatLng? currentLatLng;
+  LatLng? userPosition;
+  LatLng? carPosition;
 
   @override
   void initState() {
@@ -49,10 +48,9 @@ class _MyAppState extends State<MyApp> {
       final position = await locationService.getCurrentLocation();
 
       setState(() {
-        currentLatLng = LatLng(position.latitude, position.longitude);
+        userPosition = LatLng(position.latitude, position.longitude);
       });
     } catch (e) {
-
       debugPrint('Location Error: $e');
     }
   }
@@ -60,6 +58,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     final constants = context.watch<ConstantsProvider>().constants;
+    final mapController = MapController();
 
     return MaterialApp(
       routes: {
@@ -75,7 +74,7 @@ class _MyAppState extends State<MyApp> {
       home: SafeArea(
         child: Scaffold(
           backgroundColor: constants.primaryColor,
-          body:Column(
+          body: Column(
             children: [
               Row(
                 children: [
@@ -136,12 +135,16 @@ class _MyAppState extends State<MyApp> {
                         Positioned(
                           right: 10,
                           top: 10,
-                          child: Text(
-                            'Interior | 20°C',
-                            style: TextStyle(
-                              fontSize: constants.fontSize,
-                              color: constants.fontColor,
-                            ),
+                          child: Consumer<CarData>(
+                            builder: (context, carData, _) {
+                              return Text(
+                                'Interior | ${carData.interiorTemp}',
+                                style: TextStyle(
+                                  fontSize: constants.fontSize,
+                                  color: constants.fontColor,
+                                ),
+                              );
+                            },
                           ),
                         )
                       ],
@@ -182,50 +185,6 @@ class _MyAppState extends State<MyApp> {
                         )
                       ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 30),
-                      child: SizedBox(
-                        height: 300,
-                        width: 450,
-                        child: currentLatLng == null
-                            ? const Center(child: CircularProgressIndicator())
-                            :  FlutterMap(
-                          options: MapOptions(
-                            initialCenter: currentLatLng!,
-                            initialZoom: 14,
-                          ),
-                          children: [
-                            TileLayer(
-                              retinaMode: true,
-                              urlTemplate: constants.mapurl,
-                              userAgentPackageName: 'com.example.app',
-                            ),
-                            MarkerLayer(
-                              markers: [
-                                Marker(
-                                  point: LatLng(currentLatLng!.latitude,currentLatLng!.longitude),
-                                  width: 50,
-                                  height: 50,
-                                  child: SvgPicture.asset(
-                                    'assets/icons/car.svg',
-                                  ),
-                                ),
-                                Marker(
-                                  point: LatLng(currentLatLng!.latitude,currentLatLng!.longitude),
-                                  width: 50,
-                                  height: 50,
-                                  child: SvgPicture.asset(
-                                    color: constants.accentColor,
-                                    'assets/icons/person.svg',
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                          ],
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -236,4 +195,3 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-

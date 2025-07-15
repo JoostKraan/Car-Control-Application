@@ -23,6 +23,7 @@ dependencies:
   geocoding: any
   time: ^2.1.5
   flutter_riverpod: ^2.6.1
+  web_socket_channel: ^3.0.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
